@@ -53,7 +53,7 @@ class dataLoader:
             if(self.currentTrainDataFile >= len(self.testDataFiles)):
                 self.currentTrainDataFile = 0
                 # return self.testData
-            print("Load from "+self.positiveTestPath + self.testDataFiles[self.currentTestDataFile])
+            # print("Load from "+self.positiveTestPath + self.testDataFiles[self.currentTestDataFile])
             result,label = self.util.fbankTransform(self.positiveTestPath + self.testDataFiles[self.currentTestDataFile])
             self.currentTestDataFile += 1
             self.testData['data'] += result

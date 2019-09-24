@@ -1,5 +1,7 @@
 import fbankreader3
 import pickle
+import tensorflow as tf
+import numpy as np
 
 class Util:
 	def __init__(self,sampleRate = 160):
@@ -56,6 +58,13 @@ class Util:
 		with open(fname,'rb') as f:
 			result = pickle.load(f)
 		return result
+
+	def label2tensor(self,label):
+		# if(label < 0 or label > 2):
+		# 	raise("label value should within 0 - 2")
+		newTensor = [0,0,0]
+		newTensor[label] = 1
+		return tf.convert_to_tensor(np.array(newTensor))
 
 if __name__ == "__main__":
 	pass
