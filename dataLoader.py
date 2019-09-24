@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 
 class dataLoader:
-    def __init__(self,dataFileBatchSize = 2,shuffle = True):
+    def __init__(self,dataFileBatchSize = 30,shuffle = True):
         self.util = Util()
         self.shuffle = shuffle
         self.dataFileBatchSize = dataFileBatchSize
@@ -34,13 +34,11 @@ class dataLoader:
         for i in range(self.dataFileBatchSize):
             if(self.currentTrainDataFile >= len(self.trainDataFiles)):
                 self.currentTrainDataFile = 0 # repeat the hole dataset again
-                # return self.trainData
-            print("Load from "+self.positiveTrainPath + self.trainDataFiles[self.currentTrainDataFile])
             result,label = self.util.fbankTransform(self.positiveTrainPath + self.trainDataFiles[self.currentTrainDataFile])
             self.currentTrainDataFile += 1
             self.trainData['data'] += result
             self.trainData['label'] += label
-        self.trainData['data'],self.trainData['label'] = np.array(self.trainData['data']),np.array(self.trainData['label'])
+        self.trainData['data'],self.trainData['label'] = tf.convert_to_tensor(self.trainData['data'],dtype=tf.float32),tf.convert_to_tensor(self.trainData['label'])
         self.trainData = tf.data.Dataset.from_tensor_slices(self.trainData) # Covert raw data (dict) to tensorflwo Dataset type
         if (self.shuffle == True):
             self.trainData.shuffle(buffer_size=1000)
@@ -52,8 +50,6 @@ class dataLoader:
         for i in range(self.dataFileBatchSize):
             if(self.currentTrainDataFile >= len(self.testDataFiles)):
                 self.currentTrainDataFile = 0
-                # return self.testData
-            # print("Load from "+self.positiveTestPath + self.testDataFiles[self.currentTestDataFile])
             result,label = self.util.fbankTransform(self.positiveTestPath + self.testDataFiles[self.currentTestDataFile])
             self.currentTestDataFile += 1
             self.testData['data'] += result
