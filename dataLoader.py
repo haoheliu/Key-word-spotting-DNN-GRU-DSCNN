@@ -14,22 +14,8 @@ class dataLoader:
         self.trainData = {"data": np.empty(shape=[0,(self.left+self.right+1)*40]), "label": np.empty(shape=[0])}
         self.testData = {"data": np.empty(shape=[0,(self.left+self.right+1)*40]), "label": np.empty(shape=[0])}
         self.currentTestDataFile, self.currentTrainDataFile = 0,0
-        # self.positiveTestPath = "/home/disk2/internship_anytime/aslp_hotword_data/aslp_wake_up_word_data/data/positive/test/"
-        # self.positiveTrainPath = "/home/disk2/internship_anytime/aslp_hotword_data/aslp_wake_up_word_data/data/positive/train/"
-        self.positiveTestPath = "./data/test/"
-        self.positiveTrainPath = "./data/train/"
-        self.testDataFiles, self.trainDataFiles = self.constructPositiveDataSet()
 
-    # List All the Positive test&train files
-    def constructPositiveDataSet(self):
-        testDataFiles, trainDataFiles = os.listdir(self.positiveTestPath), os.listdir(self.positiveTrainPath)
-        for i, testDataFile in enumerate(testDataFiles):
-            if (testDataFile.split('.')[-1] != 'fbank'):
-                testDataFiles.remove(testDataFile)
-        for i, trainDataFile in enumerate(trainDataFiles):
-            if (trainDataFile.split('.')[-1] != 'fbank'):
-                trainDataFiles.remove(trainDataFile)
-        return testDataFiles, trainDataFiles
+        self.testDataFiles, self.trainDataFiles = self.util.testDataFiles,self.util.trainDataFiles
 
     # Get a batch of positive training example
     def getTrainPositiveNextBatch(self):
@@ -38,7 +24,9 @@ class dataLoader:
             if(self.currentTrainDataFile >= len(self.trainDataFiles)):
                 self.currentTrainDataFile = 0 # repeat the hole dataset again
                 return np.empty(shape=[0]),np.empty(shape=[0])
-            result,label = self.util.fbankTransform(self.positiveTrainPath + self.trainDataFiles[self.currentTrainDataFile])
+            fname = self.util.splitFileName(self.trainDataFiles[self.currentTrainDataFile])
+            result = np.load("./offlineData/"+fname+"_data.npy")
+            label = np.load("./offlineData/"+fname+"_label.npy")
             self.currentTrainDataFile += 1
             self.trainData['data'] = np.append(self.trainData['data'],result,axis=0)
             self.trainData['label'] = np.append(self.trainData['label'],label,axis=0)
@@ -50,7 +38,9 @@ class dataLoader:
         for i in range(self.dataFileBatchSize):
             if(self.currentTestDataFile >= len(self.testDataFiles)):
                 self.currentTestDataFile = 0 # repeat the hole dataset again
-            result,label = self.util.fbankTransform(self.positiveTestPath + self.testDataFiles[self.currentTestDataFile])
+            fname = self.util.splitFileName(self.testDataFiles[self.currentTestDataFile])
+            result = np.load("./offlineData/"+fname+"_data.npy")
+            label = np.load("./offlineData/"+fname+"_label.npy")
             self.currentTestDataFile += 1
             self.testData['data'] = np.append(self.testData['data'],result,axis=0)
             self.testData['label'] = np.append(self.testData['label'],label,axis=0)

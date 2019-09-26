@@ -16,34 +16,52 @@ batch = tf.placeholder(tf.float32,shape = (None,40*(Config.leftFrames+Config.rig
 label = tf.placeholder(tf.float32,shape = (None,3),name="label")
 
 def lossFunc(model,inputs,targets):
-    outputs0 = tf.nn.softmax(model(tf.convert_to_tensor(inputs,dtype=tf.float32)))
+    modelOutput = model(tf.convert_to_tensor(inputs,dtype=tf.float32))
+    outputs0 = tf.nn.softmax(modelOutput)
     output1 = tf.nn.softmax_cross_entropy_with_logits(logits=outputs0,labels = targets)
     output = tf.reduce_sum(output1)
-    return output
+    return output,modelOutput
 
-testloss = []
+def modelTest(model,inputs,targets):
+    testLoss,modelOutput = lossFunc(model, inputs, targets)
+    outputLabel=  tf.argmax(modelOutput,axis=1)
+    desiredLabel = tf.argmax(targets,axis=1)
+    return outputLabel,desiredLabel,testLoss
 
-Loss = lossFunc(dnnModel.model, batch, label)
+def calculateAccuracy(output,desired):
+    assert (output.shape == desired.shape)
+    length = output.shape[0]
+    same = 0
+    for i,j in zip(output,desired):
+        if(i == j):
+            same += 1
+    return same/length
+
+
+
+Loss,_ = lossFunc(dnnModel.model, batch, label)
 
 trainStep = tf.train.GradientDescentOptimizer(learning_rate=Config.learningRate).minimize(Loss)
 
 testBatch,testLabel = dataloader.getTestPositiveNextBatch()
 
+testAcc = []
+testloss = []
+
 with tf.Session(config=config) as sess:
     sess.run(tf.global_variables_initializer())
     for epoch in range(Config.numEpochs):
-        counter = 0
-        testLoss = lossFunc(dnnModel.model, testBatch, testLabel)
-        print("Test loss: ", sess.run(testLoss))
+        outputLabel, desiredLabel,loss = modelTest(dnnModel.model,testBatch,testLabel)
+        acc = calculateAccuracy(sess.run(outputLabel), sess.run(desiredLabel))
+        loss = sess.run(loss)
+        testAcc.append(acc)
+        testloss.append(loss)
+        print(acc,loss)
         while(True):
-            if(counter % 10 == 0):
-                print(counter)
-            counter += 1
             batchTrain,labelTrain = dataloader.getTrainPositiveNextBatch() # Get a batch of data
             if(batchTrain.shape == (0,) and labelTrain.shape == (0,)):
                 break
-            dnnModel.model.save_weights(Config.modelPath1)
             sess.run(trainStep,feed_dict={batch:batchTrain,label:labelTrain})
-            dnnModel.model.save_weights(Config.modelPath2)
 
-
+dataloader.util.savePkl("testAcc.pkl",testAcc)
+dataloader.util.savePkl("testLoss.pkl",testloss)

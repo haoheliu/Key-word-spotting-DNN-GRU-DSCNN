@@ -6,31 +6,29 @@ import matplotlib.pyplot as plt
 import pylab as pl
 import wave
 from config import Config
+import os
 
 class Util:
     def __init__(self,sampleRate = 160):
         self.sampleRate = sampleRate  # per 0.01 second
         self.bundary = self.loadPositivePlace()
+        self.testDataFiles, self.trainDataFiles  = self.constructPositiveDataSet()
 
+    def splitFileName(self,fname):
+        return fname.split('.')[-2].split('/')[-1]
     # Combine each frame's feature with left and right frames'
-    def fbankTransform(self,fPath = "positive_00011.fbank"):
+    def fbankTransform(self,fPath = "positive_00011.fbank",save = True):
         raw = fbankreader3.HTKFeat_read(fPath)
         raw = raw.getall().tolist()
         frameLength = len(raw)
         result = np.empty(shape=[0,(Config.leftFrames+Config.rightFrames+1)*40])
-        fname = fPath.split('.')[-2].split('/')[-1]  # e.g. positive_00011
-        # label = np.zeros(shape=[len(raw)])
+        fname = self.splitFileName(fPath)  # e.g. positive_00011
         label = np.empty(shape=[0,3])
-        raw = [raw[0]]*Config.leftFrames+raw+[raw[-1]]*Config.rightFrames
+        raw = np.array([raw[0]]*Config.leftFrames+raw+[raw[-1]]*Config.rightFrames)
         for i in range(0,frameLength):
-            temp = []
-            base = i+Config.leftFrames 					 # the frame
-            for left_i in range(Config.leftFrames,0,-1):  # front 30 frames
-                temp += raw[base-left_i]
-            temp += raw[base]
-            for right_i in range(1,Config.rightFrames+1):
-                temp += raw[base+right_i]
-            result = np.append(result,np.array([temp]),axis=0)
+            base = i + Config.leftFrames
+            temp = raw[i:base + Config.rightFrames + 1].reshape((1,1640))
+            result = np.concatenate((result, temp),axis=0)
         for i in range(0, len(result)):
             if(self.isFirstKeyWord(fname,i)):
                 label = np.append(label,np.array([[0,1,0]]),axis=0)
@@ -38,7 +36,21 @@ class Util:
                 label = np.append(label,np.array([[0,0,1]]),axis=0)
             else:
                 label = np.append(label, np.array([[1, 0, 0]]),axis=0)
+        if(save == True):
+            np.save("./offlineData/"+fname+"_data.npy",result)
+            np.save("./offlineData/" + fname + "_label.npy", label)
         return result,label
+
+    # List All the Positive test&train files
+    def constructPositiveDataSet(self):
+        testDataFiles, trainDataFiles = os.listdir(Config.positiveTestPath), os.listdir(Config.positiveTrainPath)
+        for i, testDataFile in enumerate(testDataFiles):
+            if (testDataFile.split('.')[-1] != 'fbank'):
+                testDataFiles.remove(testDataFile)
+        for i, trainDataFile in enumerate(trainDataFiles):
+            if (trainDataFile.split('.')[-1] != 'fbank'):
+                trainDataFiles.remove(trainDataFile)
+        return testDataFiles, trainDataFiles
 
     # Load
     def loadPositivePlace(self,fPath = "./positiveKeywordPosition.txt"):
@@ -79,15 +91,31 @@ class Util:
             result = pickle.load(f)
         return result
 
-    def label2tensor(self,label):
-        # if(label < 0 or label > 2):
-        # 	raise("label value should within 0 - 2")
-        retVal = []
-        for each in label.tolist():
-            newTensor = [0,0,0]
-            newTensor[int(each)] = 1
-            retVal.append(newTensor)
-        return tf.convert_to_tensor(np.array(retVal))
+    def constructOfflineData(self):
+        if(not os.path.exists("offlineData")):
+            os.mkdir("offlineData")
+        print("Construct offline test data from "+Config.positiveTestPath+"...")
+        counter = 0
+        for fname in self.testDataFiles:
+            counter += 1
+            if(counter %50 == 0):
+                print(str(counter)+" testfiles Finished")
+            try:
+                self.fbankTransform(fPath=Config.positiveTestPath+fname)
+            except:
+                print("Error while transforming "+fname)
+                continue
+        print("Construct offline train data from " + Config.positiveTrainPath + "...")
+        counter = 0
+        for fname in self.trainDataFiles:
+            counter += 1
+            if(counter %50 == 0):
+                print(str(counter)+" trainfiles Finished")
+            try:
+                self.fbankTransform(fPath=Config.positiveTrainPath + fname)
+            except:
+                print("Error while transforming " + fname)
+                continue
 
     def plotWave(self,fname = "positive_00001"):
         util = Util()
@@ -119,8 +147,8 @@ class Util:
 
 if __name__ == "__main__":
     util = Util()
-    result,label = util.fbankTransform()
-    print(result,label)
+    util.constructOfflineData()
+
 
 
 
