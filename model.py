@@ -11,7 +11,8 @@ class Model:
             tf.keras.layers.Dense(128, activation=tf.nn.relu),
             tf.keras.layers.Dense(3)
         ])
-
 if __name__ == "__main__":
     m = Model()
-    m.createModel()
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        print(sess.run(m.model.variables[1]))
