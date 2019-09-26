@@ -7,6 +7,7 @@ import pylab as pl
 import wave
 from config import Config
 import os
+import random
 
 class Util:
     def __init__(self,sampleRate = 160):
@@ -117,7 +118,7 @@ class Util:
                 print("Error while transforming " + fname)
                 continue
 
-    def plotWave(self,fname = "positive_00001"):
+    def plotWave(self,fname = "positive_00011"):
         util = Util()
         positivePlace = util.loadPositiveBitsPlace()
         f = wave.open("./"+fname+".WAV", 'rb')
