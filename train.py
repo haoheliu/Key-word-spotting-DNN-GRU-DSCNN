@@ -1,19 +1,22 @@
+import tensorflow as tf
+import numpy as np
+import os
+
 from model import Model
 from dataLoader import dataLoader
-import tensorflow as tf
-import os
 from config import Config
-import numpy as np
+
 
 os.environ["CUDA_DEVICE_ORDER"] = 'PCI_BUS_ID'
 os.environ["CUDA_VISIBLE_DEVICES"] = '0,1'
 config = tf.ConfigProto(allow_soft_placement=True) #log_device_placement=True
 config.gpu_options.allow_growth = True
 totalEpoches = Config.numEpochs
+
 print("Construct model...")
 dnnModel = Model()
 print("Construct dataLoader...")
-dataloader = dataLoader(dataFileBatchSize=Config.batchSize)
+dataloader = dataLoader(dataFileBatchSize=Config.trainBatchSize)
 
 batch = tf.placeholder(tf.float32,shape = (None,40*(Config.leftFrames+Config.rightFrames+1)),name = 'batch_input')
 label = tf.placeholder(tf.float32,shape = (None,3),name="label")
