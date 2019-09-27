@@ -59,10 +59,8 @@ class Util:
                 continue
 
     def constructOfflineData(self):
-        if(not os.path.exists("offlineDataPositive")):
-            os.mkdir("offlineDataPositive")
-        if(not os.path.exists("offlineDataNegative")):
-            os.mkdir("offlineDataNegative")
+        if(not os.path.exists("offlineData")):
+            os.mkdir("offlineData")
         self.fbankBatchTransform(self.testPositiveDataFiles,Config.positiveTestPath)
         self.fbankBatchTransform(self.trainPositiveDataFiles,Config.positiveTrainPath)
         self.fbankBatchTransform(self.testNegativeDataFiles,Config.negativeTestPath)

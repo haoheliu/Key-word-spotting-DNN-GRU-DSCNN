@@ -7,12 +7,14 @@ import random
 class dataLoader:
     def __init__(self):
         self.util = Util()
-        self.currentTestPositiveDataFile, self.currentTestNegativeDataFile = 0,0
+        self.currentTestDataFile = 1
         self.currentTrainDataFile = 0
 
-        Config.testBatchSize = int((len(self.util.testPositiveDataFiles)+len(self.util.testNegativeDataFiles)) * 0.1)
         self.trainDataFiles = self.util.trainNegativeDataFiles+self.util.trainPositiveDataFiles
-        random.shuffle(self.trainDataFiles)
+        self.testDataFiles = self.util.testNegativeDataFiles[:50]+self.util.testPositiveDataFiles[:50]
+        # random.shuffle(self.trainDataFiles)
+        # random.shuffle(self.testDataFiles)
+        # self.testDataFiles = self.testDataFiles[:100]
 
         self.maxTestCacheSize = Config.testBatchSize * Config.maximumFrameNumbers
         self.maxTrainCacheSize = Config.trainBatchSize * Config.maximumFrameNumbers
@@ -20,22 +22,22 @@ class dataLoader:
             "data": np.empty(shape=[self.maxTrainCacheSize,(Config.leftFrames+Config.rightFrames+1)*40]),
             "label": np.empty(shape=[self.maxTrainCacheSize,3])
         }
-        self.testPositiveData = {
-            "data": np.zeros(shape=[self.maxTestCacheSize,(Config.leftFrames+Config.rightFrames+1)*40]),
-            "label": np.zeros(shape=[self.maxTestCacheSize,3])
+        self.testData = {
+            "data": [],
+            "label": []
         }
-        self.testNegativeData = {
-            "data": np.zeros(shape=[self.maxTestCacheSize, (Config.leftFrames + Config.rightFrames + 1) * 40]),
-            "label": np.zeros(shape=[self.maxTestCacheSize, 3])
-        }
-
-        self.constructTestPositive()
+        # self.constructTestDataSet()
 
     # Get a batch of positive training example
     def getTrainNextBatch(self):
-        self.resetDataDict()
+        # Reset
+        self.trainData = {
+            "data": np.empty(shape=[self.maxTrainCacheSize,(Config.leftFrames+Config.rightFrames+1)*40]),
+            "label": np.empty(shape=[self.maxTrainCacheSize,3])
+        }
         counter,currentRow = 0,0
-        if(self.currentTrainDataFile % 500 == 0):
+        # Report
+        if(self.currentTrainDataFile % 1000 == 0):
             print(str(self.currentTrainDataFile)+" training files finished!")
         for i in range(Config.trainBatchSize):
             if(self.currentTrainDataFile >= len(self.trainDataFiles)):
@@ -45,12 +47,13 @@ class dataLoader:
                     print("Shuffle training data ...")
                     random.shuffle(self.trainDataFiles)
                 return np.empty(shape=[0]),np.empty(shape=[0])
-            fname = self.util.splitFileName(self.util.trainPositiveDataFiles[self.currentTrainDataFile])
+            fname = self.util.splitFileName(self.trainDataFiles[self.currentTrainDataFile])
             try:
                 result = np.load(Config.offlineDataPath+fname+"_data.npy")
                 label = np.load(Config.offlineDataPath+fname+"_label.npy")
             except:
                 print("Error while reading file: "+fname)
+                self.currentTrainDataFile += 1
                 continue
             self.currentTrainDataFile += 1
             for data,label in zip(result,label):
@@ -61,40 +64,49 @@ class dataLoader:
         self.trainData['label'] = self.trainData['label'][:currentRow]
         return self.trainData['data'],self.trainData['label']
 
-    # Get a batch of positive test example
-    def constructTestPositive(self):
-        self.resetDataDict()
-        self.currentTestDataFile = 0  # repeat the hole dataset again
-        currentRow,counter = 0,0
-        for i in range(Config.testBatchSize): # All the test files
-            if(counter % 100 == 0):
-                print("Loading "+str(counter)+" testfiles finished!")
+    def getSingleTestData(self):
+        if(self.currentTestDataFile >= len(self.testDataFiles)-20):
+            self.currentTestDataFile = 0
+            random.shuffle(self.testDataFiles)
+            return [],[]
+        fname = self.util.splitFileName(self.testDataFiles[self.currentTestDataFile])
+        try:
+            result = np.load(Config.offlineDataPath + fname + "_data.npy")
+            label = np.load(Config.offlineDataPath + fname + "_label.npy")
+        except:
+            print("Error while reading file: " + fname)
+            return [],[]
+        testData = {
+            "data": np.zeros(shape=[result.shape[0], (Config.leftFrames + Config.rightFrames + 1) * 40]),
+            "label": None
+        }
+        currentRow = 0
+        self.currentTestDataFile += 1
+        for data, label in zip(result, label):
+            testData['data'][currentRow] = data
+            currentRow += 1
+        type = fname.strip().split('_')[0]
+        if(type == 'positive'):
+            testData['label'] = 1
+        elif(type == 'negative'):
+            testData['label'] = 0
+        else:
+            raise ValueError("File should either be positive or negative")
+        return testData['data'],testData['label']
+
+    def constructTestDataSet(self):
+        counter = 0
+        while(self.currentTestDataFile != 0):
+            if(counter % 500 == 1):
+                print(str(counter)," test filed loaded,","total test files: "+str(len(self.testDataFiles)))
+            data,label = self.getSingleTestData()
+            self.testData['data'].append(data)
+            self.testData['label'].append(label)
             counter += 1
-            fname = self.util.splitFileName(self.util.testPositiveDataFiles[self.currentTestDataFile])
-            result = np.load("./offlineDataPositive/"+fname+"_data.npy")
-            label = np.load("./offlineDataPositive/"+fname+"_label.npy")
-            self.currentTestDataFile += 1
-            for data,label in zip(result,label):
-                self.testData['data'][currentRow] = data
-                self.testData['label'][currentRow] = label
-                currentRow += 1
-        self.testData['data'] = self.testData['data'][:currentRow]
-        self.testData['label'] = self.testData['label'][:currentRow]
 
-    def constructTestNegative(self):
-        pass
-
-    def getTestNegative(self):
-        pass
-
-    def getTestPositive(self):
+    def getTestData(self):
         return self.testData['data'],self.testData['label']
 
-    def resetDataDict(self):
-        self.trainData = {"data": np.empty(shape=[self.maxTrainCacheSize,(Config.leftFrames+Config.rightFrames+1)*40]), "label": np.empty(shape=[self.maxTrainCacheSize,3])}
-
 if __name__ == "__main__":
-    dataloader = dataLoader(dataFileBatchSize=5)
-    data,label = dataloader.getTestPositive()
-    print(data.shape)
-    print(label.shape)
+    dataloader = dataLoader()
+    dataloader.getTrainNextBatch()

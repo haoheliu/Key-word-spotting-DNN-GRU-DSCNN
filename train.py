@@ -16,8 +16,7 @@ totalEpoches = Config.numEpochs
 print("Construct model...")
 dnnModel = Model()
 print("Construct dataLoader...")
-dataloader = dataLoader(dataFileBatchSize=Config.trainBatchSize)
-
+dataloader = dataLoader()
 batch = tf.placeholder(tf.float32,shape = (None,40*(Config.leftFrames+Config.rightFrames+1)),name = 'batch_input')
 label = tf.placeholder(tf.float32,shape = (None,3),name="label")
 
@@ -34,30 +33,22 @@ def calculateAccuracy(output,desired):
 
 def posteriorHandling(modelOutput):
     confidence = np.zeros(shape=(modelOutput.shape[0]))
-    confidence[0] = (confidence[1]*confidence[2])**0.5
-    for i in range(2,modelOutput.shape[0]+1):
-        h_smooth = max(1,i-Config.w_smooth+1)
-        modelOutput[i-1] = modelOutput[h_smooth:i].sum(axis=0) / (i-h_smooth+1)
-        h_max = max(1,i-Config.w_max+1)
-        windowMax = np.max(modelOutput[h_max:i],axis=0)
-        confidence[i-1] = (windowMax[1]*windowMax[2])**0.5
-    return modelOutput,confidence
-
-def drawROC(desiredLabel,modelOutput):
-    desiredLabel[desiredLabel == 2] = 1
-    _,confidence = posteriorHandling(modelOutput)
-    return dataloader.util.plotRoc(desiredLabel,confidence,show=False)
+    confidence[0] = (modelOutput[0][1] * modelOutput[0][2]) ** 0.5
+    for i in range(2, modelOutput.shape[0] + 1):
+        h_smooth = max(1, i - Config.w_smooth + 1)
+        modelOutput[i - 1] = modelOutput[h_smooth:i].sum(axis=0) / (i - h_smooth + 1)
+        h_max = max(1, i - Config.w_max + 1)
+        windowMax = np.max(modelOutput[h_max:i], axis=0)
+        confidence[i - 1] = (windowMax[1] * windowMax[2]) ** 0.5
+    return np.max(confidence)
 
 Loss,_ = dnnModel.lossFunc(batch, label)
 
 print("Construct optimizer...")
 trainStep = tf.train.GradientDescentOptimizer(learning_rate=Config.learningRate).minimize(Loss)
 
-testAcc = []
-testloss = []
-
-testBatch, testLabel = dataloader.getTestPositive()
-desiredLabel = np.argmax(testLabel,axis=1)
+testBatch, testLabel = dataloader.getTestData()
+counter = 0
 
 print("Start Training Session...")
 with tf.Session(config=config) as sess:
@@ -65,20 +56,28 @@ with tf.Session(config=config) as sess:
     sess.run(tf.global_variables_initializer())
     while(not Config.numEpochs == 0):
         currentEpoch = Config.numEpochs
-        if(Config.numEpochs % 10 == 1):
+        if(Config.numEpochs % 1 == 0):
             print("Start testing... ", end="")
-            loss,modelOutput = dnnModel.lossFunc(testBatch,testLabel)
-            modelOutput = modelOutput.eval()
-            loss = loss.eval()
-            outputLabel = np.argmax(modelOutput,axis=1)
-            acc = calculateAccuracy(outputLabel,desiredLabel)
-            auc = drawROC(desiredLabel,modelOutput)
-            print("[EPOCH "+str(totalEpoches-Config.numEpochs),"] "\
-                  "Acc: ",acc,"Loss:",loss,\
-                  "Auc",auc)
+            confidence = []
+            labels = []
+            while(1):
+                # counter += 1
+                # if(counter % 10 == 0):
+                #     print(counter)
+                testData,testLabel = dataloader.getSingleTestData()
+                if(len(testData) == 0 and len(testLabel) == 0):
+                    break
+                modelOutput = dnnModel.model(tf.convert_to_tensor(testData, dtype=tf.float32))
+                modelOutput = sess.run(modelOutput)
+                confidence.append(posteriorHandling(modelOutput))
+                labels.append(testLabel)
+
+            auc = dataloader.util.plotRoc(labels,confidence)
+            print("auc",auc)
+
         print("[EPOCH " + str(totalEpoches - Config.numEpochs), "]")
         while(1):
-            batchTrain,labelTrain = dataloader.getTrainPositiveNextBatch() # Get a batch of data
+            batchTrain,labelTrain = dataloader.getTrainNextBatch() # Get a batch of data
             if(not currentEpoch == Config.numEpochs):
                 break
             sess.run(trainStep,feed_dict={batch:batchTrain,label:labelTrain})
