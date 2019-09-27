@@ -18,6 +18,14 @@ class Model:
     def __call__(self, inputs):
         return self.model(inputs)
 
+    def lossFunc(self, inputs, targets):
+        modelOutput = self.model(tf.convert_to_tensor(inputs, dtype=tf.float32))
+        index = tf.argmax(targets, axis=1)
+        oneHot = tf.one_hot(index, 3, 1, 0)
+        oneHot = tf.cast(oneHot, dtype=tf.float32)
+        output = tf.reduce_sum(modelOutput * oneHot, 1)
+        out = -tf.reduce_sum(output)
+        return out, modelOutput
 
 if __name__ == "__main__":
     m = Model()

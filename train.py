@@ -3,33 +3,22 @@ from dataLoader import dataLoader
 import tensorflow as tf
 import os
 from config import Config
+import numpy as np
 
 os.environ["CUDA_DEVICE_ORDER"] = 'PCI_BUS_ID'
 os.environ["CUDA_VISIBLE_DEVICES"] = '0,1'
-config = tf.ConfigProto(allow_soft_placement=True)
+config = tf.ConfigProto(allow_soft_placement=True) #log_device_placement=True
 config.gpu_options.allow_growth = True
-
+totalEpoches = Config.numEpochs
+print("Construct model...")
 dnnModel = Model()
+print("Construct dataLoader...")
 dataloader = dataLoader(dataFileBatchSize=Config.batchSize)
 
 batch = tf.placeholder(tf.float32,shape = (None,40*(Config.leftFrames+Config.rightFrames+1)),name = 'batch_input')
 label = tf.placeholder(tf.float32,shape = (None,3),name="label")
 
-
-def lossFunc(model,inputs,targets):
-    modelOutput = model(tf.convert_to_tensor(inputs,dtype=tf.float32))
-    index = tf.argmax(targets,axis=1)
-    oneHot = tf.one_hot(index,3,1,0)
-    oneHot = tf.cast(oneHot,dtype=tf.float32)
-    output = tf.matmul(modelOutput,tf.transpose(oneHot))
-    out = -tf.reduce_sum(output)
-    return out,modelOutput
-
-def modelTest(model,inputs,targets):
-    testLoss,modelOutput = lossFunc(model, inputs, targets)
-    outputLabel=  tf.argmax(modelOutput,axis=1)
-    desiredLabel = tf.argmax(targets,axis=1)
-    return outputLabel,desiredLabel,testLoss,modelOutput
+# saver = tf.train.Saver()
 
 def calculateAccuracy(output,desired):
     assert (output.shape == desired.shape)
@@ -40,30 +29,54 @@ def calculateAccuracy(output,desired):
             same += 1
     return same/length
 
-Loss,_ = lossFunc(dnnModel, batch, label)
+def posteriorHandling(modelOutput):
+    confidence = np.zeros(shape=(modelOutput.shape[0]))
+    confidence[0] = (confidence[1]*confidence[2])**0.5
+    for i in range(2,modelOutput.shape[0]+1):
+        h_smooth = max(1,i-Config.w_smooth+1)
+        modelOutput[i-1] = modelOutput[h_smooth:i].sum(axis=0) / (i-h_smooth+1)
+        h_max = max(1,i-Config.w_max+1)
+        windowMax = np.max(modelOutput[h_max:i],axis=0)
+        confidence[i-1] = (windowMax[1]*windowMax[2])**0.5
+    return modelOutput,confidence
 
+def drawROC(desiredLabel,modelOutput):
+    desiredLabel[desiredLabel == 2] = 1
+    _,confidence = posteriorHandling(modelOutput)
+    return dataloader.util.plotRoc(desiredLabel,confidence,show=False)
+
+Loss,_ = dnnModel.lossFunc(batch, label)
+
+print("Construct optimizer...")
 trainStep = tf.train.GradientDescentOptimizer(learning_rate=Config.learningRate).minimize(Loss)
-
-testBatch,testLabel = dataloader.getTestPositiveNextBatch()
 
 testAcc = []
 testloss = []
 
+testBatch, testLabel = dataloader.getTestPositive()
+desiredLabel = np.argmax(testLabel,axis=1)
+
+print("Start Training Session...")
 with tf.Session(config=config) as sess:
+    print("Initialize variables...")
     sess.run(tf.global_variables_initializer())
-    for epoch in range(Config.numEpochs):
-        outputLabel, desiredLabel,loss,temp = modelTest(dnnModel,testBatch,testLabel)
-        # print(sess.run(oneHot).shape) #(834, 3)
-        acc = calculateAccuracy(sess.run(outputLabel), sess.run(desiredLabel))
-        loss = sess.run(loss)
-        testAcc.append(acc)
-        testloss.append(loss)
-        print(acc,loss)
-        while(True):
+    while(not Config.numEpochs == 0):
+        currentEpoch = Config.numEpochs
+        if(Config.numEpochs % 10 == 1):
+            print("Start testing... ", end="")
+            loss,modelOutput = dnnModel.lossFunc(testBatch,testLabel)
+            modelOutput = modelOutput.eval()
+            loss = loss.eval()
+            outputLabel = np.argmax(modelOutput,axis=1)
+            acc = calculateAccuracy(outputLabel,desiredLabel)
+            auc = drawROC(desiredLabel,modelOutput)
+            print("[EPOCH "+str(totalEpoches-Config.numEpochs),"] "\
+                  "Acc: ",acc,"Loss:",loss,\
+                  "Auc",auc)
+        print("[EPOCH " + str(totalEpoches - Config.numEpochs), "]")
+        while(1):
             batchTrain,labelTrain = dataloader.getTrainPositiveNextBatch() # Get a batch of data
-            if(batchTrain.shape == (0,) and labelTrain.shape == (0,)):
+            if(not currentEpoch == Config.numEpochs):
                 break
             sess.run(trainStep,feed_dict={batch:batchTrain,label:labelTrain})
-
-dataloader.util.savePkl("testAcc.pkl",testAcc)
-dataloader.util.savePkl("testLoss.pkl",testloss)
+        continue

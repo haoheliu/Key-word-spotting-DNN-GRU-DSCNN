@@ -1,13 +1,14 @@
 import fbankreader3
 import pickle
-import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 import pylab as pl
 import wave
 from config import Config
 import os
-import random
+from sklearn.metrics import roc_curve, auc
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 
 class Util:
     def __init__(self,sampleRate = 160):
@@ -145,6 +146,19 @@ class Util:
         pl.plot(time, bitsLabel, c="g")
         pl.xlabel("time (seconds)")
         pl.show()
+
+    def plotRoc(self,labels, predict_prob,show = True):
+        false_positive_rate,true_positive_rate,thresholds=roc_curve(labels, predict_prob)
+        roc_auc=auc(false_positive_rate, true_positive_rate)
+        if(show == True):
+            plt.title('ROC')
+            plt.plot(false_positive_rate, true_positive_rate,'b',label='AUC = %0.4f'% roc_auc)
+            plt.legend(loc='lower right')
+            plt.plot([0,1],[0,1],'r--')
+            plt.ylabel('TPR')
+            plt.xlabel('FPR')
+            plt.show()
+        return roc_auc
 
 if __name__ == "__main__":
     util = Util()
