@@ -10,8 +10,8 @@ class dataLoader:
         self.currentTestDataFile = 1
         self.currentTrainDataFile = 0
 
-        self.trainDataFiles = self.util.trainNegativeDataFiles+self.util.trainPositiveDataFiles
-        self.testDataFiles = self.util.testNegativeDataFiles[:50]+self.util.testPositiveDataFiles[:50]
+        self.trainDataFiles = self.util.trainPositiveDataFiles +self.util.trainNegativeDataFiles
+        self.testDataFiles = self.util.testPositiveDataFiles[:50]#+self.util.testNegativeDataFiles[:50]
         # random.shuffle(self.trainDataFiles)
         # random.shuffle(self.testDataFiles)
         # self.testDataFiles = self.testDataFiles[:100]
@@ -64,12 +64,15 @@ class dataLoader:
         self.trainData['label'] = self.trainData['label'][:currentRow]
         return self.trainData['data'],self.trainData['label']
 
-    def getSingleTestData(self):
+    def getSingleTestData(self,fPath = None):
         if(self.currentTestDataFile >= len(self.testDataFiles)-20):
             self.currentTestDataFile = 0
             random.shuffle(self.testDataFiles)
             return [],[]
-        fname = self.util.splitFileName(self.testDataFiles[self.currentTestDataFile])
+        if(not fPath == None):
+            fname = self.util.splitFileName(fPath)
+        else:
+            fname = self.util.splitFileName(self.testDataFiles[self.currentTestDataFile])
         try:
             result = np.load(Config.offlineDataPath + fname + "_data.npy")
             label = np.load(Config.offlineDataPath + fname + "_label.npy")

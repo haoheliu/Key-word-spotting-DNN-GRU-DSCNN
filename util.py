@@ -169,9 +169,7 @@ class Util:
 
 if __name__ == "__main__":
     util = Util()
-    util.constructOfflineData()  # 离线构建数据集
-
-
+    util.plotWave("positive_00032")
 
 
 
