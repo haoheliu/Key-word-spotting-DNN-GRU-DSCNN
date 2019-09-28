@@ -16,7 +16,7 @@ class Util:
         self.bundary = self.loadPositivePlace()
         self.testPositiveDataFiles, self.trainPositiveDataFiles = self.constructPositiveDataSet()
         self.testNegativeDataFiles, self.trainNegativeDataFiles = self.constructNegativeDataset()
-
+        self.counter = 0
     def splitFileName(self,fname):
         return fname.split('.')[-2].split('/')[-1]
 
@@ -166,6 +166,30 @@ class Util:
             if (trainDataFile.split('.')[-1] != 'fbank'):
                 trainDataFiles.remove(trainDataFile)
         return testDataFiles, trainDataFiles
+
+    def visualizeModelOutput(self,modelOutput,modelNegativeOutput):
+        visual = modelOutput.T
+        visualNegative = modelNegativeOutput.T
+
+        plt.figure(figsize=(16, 10))
+        plt.title("Positive")
+        plt.subplot(211)
+        plt.plot(visual[0], 'r', label="filler")
+        plt.plot(visualNegative[0], 'b--', label="filler-negative")
+        plt.legend()
+        plt.xlabel("frames")
+        plt.ylabel("confidence")
+        plt.subplot(212)
+        plt.title("Positive")
+        plt.plot(visual[1], 'b', label="hello")
+        plt.plot(visual[2], 'g', label="xiaogua")
+        plt.plot(visualNegative[1], 'r--', label="hello-negative")
+        plt.plot(visualNegative[2], 'c--', label="xiaogua-negative")
+        plt.legend()
+        plt.xlabel("frames")
+        plt.ylabel("confidence")
+        self.counter += 1
+        plt.savefig("./images/fig"+str(self.counter)+".png")
 
 if __name__ == "__main__":
     util = Util()

@@ -49,6 +49,7 @@ with tf.name_scope("modelOptimizer"):
     trainStep = tf.train.GradientDescentOptimizer(learning_rate=Config.learningRate,name="gradient_optimizer").minimize(Loss)
 
 testData,testLabel = dataloader.getSingleTestData(fPath="positive_00001.fbank")
+testNegativeData,testNegativeLabel = dataloader.getSingleTestData(fPath="negative_00001.fbank")
 
 print("Start Training Session...")
 with tf.Session(config=config) as sess:
@@ -68,20 +69,9 @@ with tf.Session(config=config) as sess:
                     break
                 modelOutput = dnnModel.model(tf.convert_to_tensor(testData, dtype=tf.float32))
                 modelOutput = sess.run(modelOutput)
-
-                visual = modelOutput.T
-                plt.subplot(211)
-                plt.plot(visual[0], color='r', label="filler")
-                plt.legend()
-                plt.xlabel("frames")
-                plt.ylabel("confidence")
-                plt.subplot(212)
-                plt.plot(visual[1], color='b', label="hello")
-                plt.plot(visual[2], color='g', label="xiaogua")
-                plt.legend()
-                plt.xlabel("frames")
-                plt.ylabel("confidence")
-                plt.show()
+                modelNegativeOutput = dnnModel.model(tf.convert_to_tensor(testNegativeData, dtype=tf.float32))
+                modelNegativeOutput = sess.run(modelNegativeOutput)
+                dataloader.util.visualizeModelOutput(modelOutput,modelNegativeOutput)
                 break
             # auc = dataloader.util.plotRoc(labels,confidence)
             # print("auc",auc)
