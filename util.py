@@ -115,13 +115,15 @@ class Util:
             pl.legend()
             pl.ylabel("Probability")
             pl.subplot(515)
+            confidence = self.posteriorHandling(modelOutput)
             pl.plot(self.posteriorHandling(modelOutput))
             plt.xlabel("Frames")
             plt.ylabel("Confidence")
             if(not os.path.exists("./images/compare/"+str(Config.numEpochs))):
                 os.mkdir("./images/compare/"+str(Config.numEpochs))
-            pl.savefig("./images/compare/"+str(Config.numEpochs)+"/"+fname+".png")
-            # pl.show()
+            # pl.savefig("./images/compare/"+str(Config.numEpochs)+"/"+fname+".png")
+            pl.show()
+            return confidence
 
     def plotRoc(self,labels, predict_prob,show = True):
         false_positive_rate,true_positive_rate,thresholds=roc_curve(labels, predict_prob)
@@ -226,15 +228,28 @@ class Util:
         # plt.savefig("./images/fig"+str(self.counter)+".png")
         plt.show()
 
-    def posteriorHandling(self,modelOutput):
+    def posteriorHandling_v0(self,modelOutput):
         confidence = np.zeros(shape=(modelOutput.shape[0]))
-        confidence[0] = (modelOutput[0][1] * modelOutput[0][2]) ** 0.5
+        # confidence[0] = (modelOutput[0][1] * modelOutpsut[0][2]) ** 0.5
+        confidence[0] = (modelOutput[0][1] + modelOutput[0][2])# ** 0.5
         for i in range(2, modelOutput.shape[0] + 1):
             h_smooth = max(1, i - Config.w_smooth + 1)
             modelOutput[i - 1] = modelOutput[h_smooth-1:i].sum(axis=0) / (i - h_smooth + 1)
             h_max = max(1, i - Config.w_max + 1)
             windowMax = np.max(modelOutput[h_max:i], axis=0)
-            confidence[i - 1] = (windowMax[1] * windowMax[2]) ** 0.5
+            confidence[i - 1] = (windowMax[1] + windowMax[2]) # ** 0.5
+        return confidence[:]
+
+    def posteriorHandling(self,modelOutput):
+        confidence = np.zeros(shape=(modelOutput.shape[0]))
+        # confidence[0] = (modelOutput[0][1] * modelOutpsut[0][2]) ** 0.5
+        confidence[0] = (modelOutput[0][1] + modelOutput[0][2])# ** 0.5
+        for i in range(2, modelOutput.shape[0] + 1):
+            h_smooth = max(1, i - Config.w_smooth + 1)
+            modelOutput[i - 1] = modelOutput[h_smooth-1:i].sum(axis=0) / (i - h_smooth + 1)
+            h_max = max(1, i - Config.w_max + 1)
+            windowMax = np.max(modelOutput[h_max:i], axis=0)
+            confidence[i - 1] = (windowMax[1] + windowMax[2]) # ** 0.5
         return confidence[:]
 
     def calculateAccuracy(output, desired):
@@ -252,7 +267,6 @@ if __name__ == "__main__":
     for i in range(-100,400):
         result.append(range(i,i+3))
     a = np.array(result)
-    print(a)
     confidence = util.posteriorHandling(a)
     print(confidence)
 

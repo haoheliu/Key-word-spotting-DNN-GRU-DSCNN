@@ -42,7 +42,7 @@ with tf.Session(config=config) as sess:
             print("Start testing... ", end="")
             dataloader.visualizaPositiveDataFiles(dataloader.testDataFiles,sess,dnnModel.model)
 
-        saver.save(sess,"./model")
+        saver.save(sess,"./model/model.ckpt")
         while(1):
             batchTrain,labelTrain = dataloader.getTrainNextBatch() # Get a batch of data
             batchTrain, labelTrain = shuffle(batchTrain,labelTrain)

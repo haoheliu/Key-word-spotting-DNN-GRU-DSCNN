@@ -4,6 +4,8 @@ from config import Config
 import numpy as np
 import random
 import tensorflow as tf
+from model import Model
+import os
 
 class dataLoader:
     def __init__(self):
@@ -12,13 +14,14 @@ class dataLoader:
         self.currentTrainDataFile = 0
 
         self.trainDataFiles = self.util.trainPositiveDataFiles +self.util.trainNegativeDataFiles
-        self.testDataFiles = ["positive_00001.fbank","positive_00002.fbank","positive_00003.fbank",
-                              "positive_00004.fbank","positive_00005.fbank","positive_00006.fbank",
-                              "positive_00009.fbank","positive_00008.fbank","positive_00007.fbank",
-                              "negative_00001.fbank", "negative_00002.fbank", "negative_00003.fbank",
-                              "negative_00004.fbank", "negative_00005.fbank", "negative_00006.fbank",
-                              "negative_00009.fbank", "negative_00008.fbank", "negative_00007.fbank"
-                              ]
+        self.testDataFiles = self.util.testPositiveDataFiles[:300]+self.util.testNegativeDataFiles[:300]
+        # self.testDataFiles = ["positive_00001.fbank","positive_00002.fbank","positive_00003.fbank",
+        #                       "positive_00004.fbank","positive_00005.fbank","positive_00006.fbank",
+        #                       "positive_00009.fbank","positive_00008.fbank","positive_00007.fbank",
+        #                       "negative_00001.fbank", "negative_00002.fbank", "negative_00003.fbank",
+        #                       "negative_00004.fbank", "negative_00005.fbank", "negative_00006.fbank",
+        #                       "negative_00009.fbank", "negative_00008.fbank", "negative_00007.fbank"
+        #                       ]
         # self.util.testPositiveDataFiles[:10]+self.util.testNegativeDataFiles[:50]
         # random.shuffle(self.trainDataFiles)
         # random.shuffle(self.testDataFiles)
@@ -117,6 +120,30 @@ class dataLoader:
     def getTestData(self):
         return self.testData['data'],self.testData['label']
 
+    def visualizeROC(self,fileNames,sess,model):
+        confidence = []
+        desiredLable = []
+        for count,file in enumerate(fileNames):
+            if(count % 10 == 0):
+                print(count)
+            try:
+                testData, testLabel = self.getSingleTestData(fPath=file)
+                modelOutput = model(tf.convert_to_tensor(testData, dtype=tf.float32))
+            except:
+                print("Error:" + file)
+                continue
+            modelOutput = sess.run(modelOutput)
+            # modelOutput += Config.base
+            confidence.append(np.max(self.util.posteriorHandling(modelOutput)))
+            if('positive' in file):
+                desiredLable .append(1)
+            else:
+                desiredLable.append(0)
+        for each in zip(desiredLable,confidence,fileNames):
+            print(each)
+        auc = self.util.plotRoc(desiredLable,confidence)
+        return auc
+
     def visualizaPositiveDataFiles(self,fileNames,sess,model):
         for file in fileNames:
             try:
@@ -126,10 +153,17 @@ class dataLoader:
                 print("Error:" + file)
                 continue
             modelOutput = sess.run(modelOutput)
-            modelOutput += Config.base
-            self.util.plotFileWave(file,modelOutput = modelOutput)
+            # modelOutput += Config.base
 
 if __name__ == "__main__":
+    os.environ["CUDA_DEVICE_ORDER"] = 'PCI_BUS_ID'
+    os.environ["CUDA_VISIBLE_DEVICES"] = '0,1'
+    config = tf.ConfigProto(allow_soft_placement=True)  # log_device_placement=True
+    config.gpu_options.allow_growth = True
+
     dataloader = dataLoader()
-    data,label = dataloader.getTrainNextBatch()
-    print(label)
+    dnnModel = Model()
+    saver = tf.train.Saver()
+    with tf.Session() as sess:
+        saver.restore(sess,save_path="./model/model.ckpt")
+        dataloader.visualizeROC(dataloader.testDataFiles,sess,dnnModel)
