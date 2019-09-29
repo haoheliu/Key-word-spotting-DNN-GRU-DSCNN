@@ -126,6 +126,7 @@ class dataLoader:
                 print("Error:" + file)
                 continue
             modelOutput = sess.run(modelOutput)
+            modelOutput += Config.base
             self.util.plotFileWave(file,modelOutput = modelOutput)
 
 if __name__ == "__main__":

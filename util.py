@@ -120,8 +120,8 @@ class Util:
             plt.ylabel("Confidence")
             if(not os.path.exists("./images/compare/"+str(Config.numEpochs))):
                 os.mkdir("./images/compare/"+str(Config.numEpochs))
-            # pl.savefig("./images/compare/"+str(Config.numEpochs)+"/"+fname+".png")
-            pl.show()
+            pl.savefig("./images/compare/"+str(Config.numEpochs)+"/"+fname+".png")
+            # pl.show()
 
     def plotRoc(self,labels, predict_prob,show = True):
         false_positive_rate,true_positive_rate,thresholds=roc_curve(labels, predict_prob)
@@ -231,11 +231,11 @@ class Util:
         confidence[0] = (modelOutput[0][1] * modelOutput[0][2]) ** 0.5
         for i in range(2, modelOutput.shape[0] + 1):
             h_smooth = max(1, i - Config.w_smooth + 1)
-            modelOutput[i - 1] = modelOutput[h_smooth:i].sum(axis=0) / (i - h_smooth + 1)
+            modelOutput[i - 1] = modelOutput[h_smooth-1:i].sum(axis=0) / (i - h_smooth + 1)
             h_max = max(1, i - Config.w_max + 1)
             windowMax = np.max(modelOutput[h_max:i], axis=0)
             confidence[i - 1] = (windowMax[1] * windowMax[2]) ** 0.5
-        return confidence[10:]
+        return confidence[:]
 
     def calculateAccuracy(output, desired):
         assert (output.shape == desired.shape)
@@ -248,6 +248,12 @@ class Util:
 
 if __name__ == "__main__":
     util = Util()
-
+    result = []
+    for i in range(-100,400):
+        result.append(range(i,i+3))
+    a = np.array(result)
+    print(a)
+    confidence = util.posteriorHandling(a)
+    print(confidence)
 
 

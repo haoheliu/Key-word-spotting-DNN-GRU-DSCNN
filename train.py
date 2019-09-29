@@ -1,7 +1,5 @@
 import tensorflow as tf
-import numpy as np
 import os
-import matplotlib.pyplot as plt
 
 from sklearn.utils import shuffle
 from model import Model
