@@ -15,7 +15,7 @@ class Model:
             self.model.add(Dense(128, activation=tf.nn.relu,name="Second_layer"))
             self.model.add(Dense(128, activation=tf.nn.relu,name="Third_layer"))
             self.model.add(Dense(3,name="Output_layer"))
-            self.model.add(Activation('softmax',name="SOFTMAX_activation"))
+            # self.model.add(Activation('softmax',name="SOFTMAX_activation"))
 
     def __call__(self, inputs):
         return self.model(inputs)
@@ -38,4 +38,11 @@ class Model:
         return output,modelOutput
 
 if __name__ == "__main__":
-    model = Model()
+    a = tf.Variable([[1,0,0],[0,1,0],[0,0,1]],dtype=tf.float32)
+    b = tf.Variable([[0, 0, 0], [0, 1, 0], [0, 0, 1]],dtype=tf.float32)
+    loss1 = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(labels=a,logits=a))
+    loss2 = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(labels=b, logits=b))
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        print(sess.run(loss1))
+        print(sess.run(loss2))

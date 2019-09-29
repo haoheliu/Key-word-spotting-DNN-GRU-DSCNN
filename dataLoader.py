@@ -3,6 +3,7 @@ from config import Config
 
 import numpy as np
 import random
+import tensorflow as tf
 
 class dataLoader:
     def __init__(self):
@@ -11,11 +12,17 @@ class dataLoader:
         self.currentTrainDataFile = 0
 
         self.trainDataFiles = self.util.trainPositiveDataFiles +self.util.trainNegativeDataFiles
-        self.testDataFiles = self.util.testPositiveDataFiles[:50]#+self.util.testNegativeDataFiles[:50]
+        self.testDataFiles = ["positive_00001.fbank","positive_00002.fbank","positive_00003.fbank",
+                              "positive_00004.fbank","positive_00005.fbank","positive_00006.fbank",
+                              "positive_00009.fbank","positive_00008.fbank","positive_00007.fbank",
+                              "negative_00001.fbank", "negative_00002.fbank", "negative_00003.fbank",
+                              "negative_00004.fbank", "negative_00005.fbank", "negative_00006.fbank",
+                              "negative_00009.fbank", "negative_00008.fbank", "negative_00007.fbank"
+                              ]
+        # self.util.testPositiveDataFiles[:10]+self.util.testNegativeDataFiles[:50]
         # random.shuffle(self.trainDataFiles)
         # random.shuffle(self.testDataFiles)
         # self.testDataFiles = self.testDataFiles[:100]
-
         self.maxTestCacheSize = Config.testBatchSize * Config.maximumFrameNumbers
         self.maxTrainCacheSize = Config.trainBatchSize * Config.maximumFrameNumbers
         self.trainData = {
@@ -65,7 +72,7 @@ class dataLoader:
         return self.trainData['data'],self.trainData['label']
 
     def getSingleTestData(self,fPath = None):
-        if(self.currentTestDataFile >= len(self.testDataFiles)-20):
+        if(self.currentTestDataFile >= len(self.testDataFiles)-0):
             self.currentTestDataFile = 0
             random.shuffle(self.testDataFiles)
             return [],[]
@@ -110,6 +117,18 @@ class dataLoader:
     def getTestData(self):
         return self.testData['data'],self.testData['label']
 
+    def visualizaPositiveDataFiles(self,fileNames,sess,model):
+        for file in fileNames:
+            try:
+                testData, testLabel = self.getSingleTestData(fPath=file)
+                modelOutput = model(tf.convert_to_tensor(testData, dtype=tf.float32))
+            except:
+                print("Error:" + file)
+                continue
+            modelOutput = sess.run(modelOutput)
+            self.util.plotFileWave(file,modelOutput = modelOutput)
+
 if __name__ == "__main__":
     dataloader = dataLoader()
-    dataloader.getTrainNextBatch()
+    data,label = dataloader.getTrainNextBatch()
+    print(label)
