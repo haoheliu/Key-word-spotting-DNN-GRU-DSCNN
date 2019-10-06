@@ -31,6 +31,11 @@ with tf.name_scope("modelOptimizer"):
     trainStep = tf.train.GradientDescentOptimizer(learning_rate=Config.learningRate,name="gradient_optimizer").minimize(Loss,global_step=global_step)
 
 print("Start Training Session...")
+if (not os.path.exists("./model/" )):
+    os.mkdir("./model/" )
+if (not os.path.exists("./DeepModel/" )):
+    os.mkdir("./DeepModel/" )
+
 with tf.Session(config=config) as sess:
     print("Initialize variables...")
     sess.run(tf.global_variables_initializer())
@@ -38,11 +43,15 @@ with tf.Session(config=config) as sess:
     # writer.close()
     while(not Config.numEpochs == 0):
         currentEpoch = Config.numEpochs
-        if(Config.numEpochs % 1 == 0):
-            print("Start testing... ", end="")
-            dataloader.visualizaPositiveDataFiles(dataloader.testDataFiles,sess,dnnModel.model)
-
-        saver.save(sess,"./model/model.ckpt")
+        # if(Config.numEpochs % 1 == 0):
+        #     print("Start testing... ", end="")
+        #     dataloader.visualizaPositiveDataFiles(dataloader.testDataFiles,sess,dnnModel.model)
+        if(Config.useDeepModel == True):
+            saver.save(sess,"./DeepModel/model.ckpt")
+        else:
+            saver.save(sess, "./Model/model.ckpt")
+        print("done")
+        exit(0)
         while(1):
             batchTrain,labelTrain = dataloader.getTrainNextBatch() # Get a batch of data
             batchTrain, labelTrain = shuffle(batchTrain,labelTrain)

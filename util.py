@@ -261,13 +261,46 @@ class Util:
                 same += 1
         return same / length
 
+    # Realize a ROC curve
+    def drawROC(self,desiredLabelPath,confidencePath):
+        desiredLabel = self.loadPkl(desiredLabelPath)
+        confidence = self.unifyConfidence(self.loadPkl(confidencePath))
+        positiveFileCount = desiredLabel.count(1)
+        negativeFileCount = desiredLabel.count(0)
+        coord = []
+        for each in confidence:
+            threshold = each
+            resultDic = {"tp": 0, "fp": 0, "tn": 0, "fn": 0}
+            for label,conf in zip(desiredLabel,confidence):
+                if(label == 1 and conf < threshold):
+                    resultDic["tn"] += 1
+                elif(label == 1 and conf >= threshold):
+                    resultDic["tp"] += 1
+                elif(label == 0 and conf < threshold):
+                    resultDic["fn"] += 1
+                elif(label == 0 and conf >= threshold):
+                    resultDic["fp"] += 1
+            coord.append([resultDic['fp']/negativeFileCount,resultDic['tn']/positiveFileCount])
+        coord = np.array(coord)
+        # sortedInd = np.argsort(coord[:,0],axis=0)
+        xcoord = coord[:,0]
+        ycoord = coord[:,1]
+        return xcoord,ycoord
+
+    def unifyConfidence(self,confidence):
+        gap = max(confidence) - min(confidence)
+        confidence -= min(confidence)
+        confidence /= gap
+        return confidence
+
 if __name__ == "__main__":
     util = Util()
-    result = []
-    for i in range(-100,400):
-        result.append(range(i,i+3))
-    a = np.array(result)
-    confidence = util.posteriorHandling(a)
-    print(confidence)
-
-
+    xcoord_deep,ycoord_deep = util.drawROC("./pickles/DeepDesiredLabel.pkl","./pickles/DeepConfidence.pkl")
+    xcoord,ycoord = util.drawROC("./pickles/desiredLabel.pkl","./pickles/confidence.pkl")
+    # plt.xlim((0,0.4))
+    # plt.ylim((0,0.2))
+    plt.xlabel("False positive rate")
+    plt.ylabel("False reject rate")
+    plt.scatter(xcoord,ycoord,s = 1)
+    plt.scatter(xcoord_deep, ycoord_deep, s=1)
+    plt.show()

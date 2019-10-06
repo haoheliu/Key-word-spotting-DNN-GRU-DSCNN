@@ -14,18 +14,7 @@ class dataLoader:
         self.currentTrainDataFile = 0
 
         self.trainDataFiles = self.util.trainPositiveDataFiles +self.util.trainNegativeDataFiles
-        self.testDataFiles = self.util.testPositiveDataFiles[:300]+self.util.testNegativeDataFiles[:300]
-        # self.testDataFiles = ["positive_00001.fbank","positive_00002.fbank","positive_00003.fbank",
-        #                       "positive_00004.fbank","positive_00005.fbank","positive_00006.fbank",
-        #                       "positive_00009.fbank","positive_00008.fbank","positive_00007.fbank",
-        #                       "negative_00001.fbank", "negative_00002.fbank", "negative_00003.fbank",
-        #                       "negative_00004.fbank", "negative_00005.fbank", "negative_00006.fbank",
-        #                       "negative_00009.fbank", "negative_00008.fbank", "negative_00007.fbank"
-        #                       ]
-        # self.util.testPositiveDataFiles[:10]+self.util.testNegativeDataFiles[:50]
-        # random.shuffle(self.trainDataFiles)
-        # random.shuffle(self.testDataFiles)
-        # self.testDataFiles = self.testDataFiles[:100]
+        self.testDataFiles = self.util.testPositiveDataFiles+self.util.testNegativeDataFiles
         self.maxTestCacheSize = Config.testBatchSize * Config.maximumFrameNumbers
         self.maxTrainCacheSize = Config.trainBatchSize * Config.maximumFrameNumbers
         self.trainData = {
@@ -36,7 +25,6 @@ class dataLoader:
             "data": [],
             "label": []
         }
-        # self.constructTestDataSet()
 
     # Get a batch of positive training example
     def getTrainNextBatch(self):
@@ -128,20 +116,29 @@ class dataLoader:
                 print(count)
             try:
                 testData, testLabel = self.getSingleTestData(fPath=file)
-                modelOutput = model(tf.convert_to_tensor(testData, dtype=tf.float32))
             except:
                 print("Error:" + file)
                 continue
-            modelOutput = sess.run(modelOutput)
+            try:
+                modelOutput = sess.run(model.testModel(),feed_dict={model.TestInput:testData})
+            except:
+                print("here:",file,testData)
             # modelOutput += Config.base
             confidence.append(np.max(self.util.posteriorHandling(modelOutput)))
             if('positive' in file):
                 desiredLable .append(1)
             else:
                 desiredLable.append(0)
-        for each in zip(desiredLable,confidence,fileNames):
-            print(each)
+        print(confidence)
         auc = self.util.plotRoc(desiredLable,confidence)
+        if(not os.path.exists("./pickles")):
+            os.mkdir("./pickles")
+        if(Config.useDeepModel == False):
+            self.util.savePkl("pickles/desiredLabel.pkl",desiredLable)
+            self.util.savePkl("pickles/confidence.pkl",confidence)
+        else:
+            self.util.savePkl("pickles/DeepDesiredLabel.pkl",desiredLable)
+            self.util.savePkl("pickles/DeepConfidence.pkl",confidence)
         return auc
 
     def visualizaPositiveDataFiles(self,fileNames,sess,model):
@@ -160,10 +157,10 @@ if __name__ == "__main__":
     os.environ["CUDA_VISIBLE_DEVICES"] = '0,1'
     config = tf.ConfigProto(allow_soft_placement=True)  # log_device_placement=True
     config.gpu_options.allow_growth = True
-
     dataloader = dataLoader()
     dnnModel = Model()
     saver = tf.train.Saver()
     with tf.Session() as sess:
-        saver.restore(sess,save_path="./model/model.ckpt")
+        saver.restore(sess,save_path="./Model/model.ckpt")
         dataloader.visualizeROC(dataloader.testDataFiles,sess,dnnModel)
+

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="BookmarkManager">
-    <bookmark url="file://$PROJECT_DIR$/dataLoader.py" line="23" />
-  </component>
   <component name="ChangeListManager">
-    <list default="true" id="bbbe3065-404a-401f-b17f-db0529547172" name="Default" comment="Get pretty good result in modelOutput">
+    <list default="true" id="bbbe3065-404a-401f-b17f-db0529547172" name="Default" comment="Complete! Final commit V1.0">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dataLoader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataLoader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/positive_00011.fbank" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/util.py" afterDir="false" />
     </list>
@@ -42,8 +42,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="161">
-              <caret line="7" selection-start-line="7" selection-end-line="7" />
+            <state relative-caret-position="-230">
+              <caret line="29" column="49" lean-forward="true" selection-start-line="29" selection-start-column="49" selection-end-line="29" selection-end-column="49" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -52,12 +52,18 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fbankreader3.py">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/util.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2944">
-              <caret line="128" column="49" selection-start-line="128" selection-start-column="49" selection-end-line="128" selection-end-column="49" />
+            <state relative-caret-position="293">
+              <caret line="300" column="21" lean-forward="true" selection-start-line="300" selection-start-column="21" selection-end-line="300" selection-end-column="21" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
+                <element signature="e#3160#5499#0" />
               </folding>
             </state>
           </provider>
@@ -66,8 +72,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/config.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="529">
-              <caret line="23" column="42" selection-start-line="23" selection-start-column="42" selection-end-line="23" selection-end-column="42" />
+            <state relative-caret-position="23">
+              <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/dataLoader.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="285">
+              <caret line="137" column="66" lean-forward="true" selection-start-line="137" selection-start-column="66" selection-end-line="137" selection-end-column="66" />
+              <folding>
+                <element signature="e#0#21#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -75,8 +93,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="207">
-              <caret line="9" selection-start-line="9" selection-end-line="9" />
+            <state relative-caret-position="92">
+              <caret line="40" selection-start-line="40" selection-end-line="40" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -84,14 +102,20 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/dataLoader.py">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/tensorflow/python/keras/engine/base_layer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="322">
-              <caret line="20" column="76" selection-start-line="20" selection-start-column="76" selection-end-line="20" selection-end-column="76" />
-              <folding>
-                <element signature="e#0#21#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="141">
+              <caret line="647" selection-start-line="647" selection-end-line="647" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/tensorflow/python/framework/ops.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="141">
+              <caret line="1005" selection-start-line="1005" selection-end-line="1005" />
             </state>
           </provider>
         </entry>
@@ -141,19 +165,19 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Posterior.py" />
-        <option value="$PROJECT_DIR$/model.py" />
         <option value="$PROJECT_DIR$/train.py" />
-        <option value="$PROJECT_DIR$/util.py" />
-        <option value="$PROJECT_DIR$/config.py" />
+        <option value="$PROJECT_DIR$/model.py" />
         <option value="$PROJECT_DIR$/dataLoader.py" />
+        <option value="$PROJECT_DIR$/config.py" />
+        <option value="$PROJECT_DIR$/util.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-15" />
-    <option name="y" value="-15" />
+    <option name="x" value="-307" />
+    <option name="y" value="-9" />
     <option name="width" value="1944" />
-    <option name="height" value="1105" />
+    <option name="height" value="1102" />
   </component>
   <component name="ProjectId" id="1RHfl0eGzEUHMiT7IUtVHRKWbMU" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
@@ -164,7 +188,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -172,21 +195,11 @@
               <item name="fbankDataTransform" type="b2602c69:ProjectViewProjectNode" />
               <item name="fbankDataTransform" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="fbankDataTransform" type="b2602c69:ProjectViewProjectNode" />
-              <item name="fbankDataTransform" type="462c0819:PsiDirectoryNode" />
-              <item name="data" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="fbankDataTransform" type="b2602c69:ProjectViewProjectNode" />
-              <item name="fbankDataTransform" type="462c0819:PsiDirectoryNode" />
-              <item name="data" type="462c0819:PsiDirectoryNode" />
-              <item name="Negative" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -195,7 +208,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -214,7 +227,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.dataLoader">
+  <component name="RunManager" selected="Python.util">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="fbankDataTransform" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -381,9 +394,9 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.util" />
         <item itemvalue="Python.dataLoader" />
         <item itemvalue="Python.train" />
-        <item itemvalue="Python.util" />
         <item itemvalue="Python.model" />
         <item itemvalue="Python.config" />
       </list>
@@ -409,6 +422,13 @@
       <workItem from="1569620231151" duration="12608000" />
       <workItem from="1569665403339" duration="20942000" />
       <workItem from="1569726263104" duration="13323000" />
+      <workItem from="1569746080623" duration="1054000" />
+      <workItem from="1569731406002" duration="5040000" />
+      <workItem from="1569843351265" duration="3917000" />
+      <workItem from="1570284806130" duration="4093000" />
+      <workItem from="1570332192521" duration="599000" />
+      <workItem from="1570335826905" duration="6816000" />
+      <workItem from="1570372937441" duration="3876000" />
     </task>
     <task id="LOCAL-00001" summary="update fbankreader to python3">
       <created>1569289062523</created>
@@ -508,11 +528,18 @@
       <option name="project" value="LOCAL" />
       <updated>1569732668292</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Complete! Final commit V1.0">
+      <created>1569746123710</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1569746123710</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="124605000" />
+    <option name="totallyTimeSpent" value="150000000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -527,28 +554,28 @@
     <frame x="-7" y="-7" width="1563" height="855" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.036544852" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.15681063" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32918397" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.09128631" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.44813278" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.21576764" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.373444" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32918397" />
       <window_info anchor="bottom" id="Database Changes" order="7" />
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32918397" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.32957748" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.32918397" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="bottom" id="Python Console" order="11" weight="0.32780084" />
+      <window_info anchor="bottom" id="Python Console" order="11" weight="0.24896266" />
       <window_info anchor="bottom" id="Docker" order="12" show_stripe_button="false" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="SciView" order="3" sideWeight="0.95435685" visible="true" weight="0.28039867" />
+      <window_info active="true" anchor="right" id="SciView" order="3" sideWeight="0.85714287" visible="true" weight="0.3116279" />
       <window_info anchor="right" id="Database" order="4" weight="0.32956812" />
-      <window_info anchor="right" x="0" y="0" width="337" height="642" id="Documentation" order="5" sideWeight="0.045643155" side_tool="true" visible="true" weight="0.28039867" />
+      <window_info anchor="right" x="0" y="0" width="337" height="642" id="Documentation" order="5" sideWeight="0.14285715" side_tool="true" visible="true" weight="0.3116279" />
       <window_info anchor="right" id="Coverage" order="6" side_tool="true" />
     </layout>
     <layout-to-restore>
@@ -634,7 +661,8 @@
     <MESSAGE value="CheckPoint: 9.28 18:40" />
     <MESSAGE value="Works pretty good on positive_00001 &amp; negative_00001" />
     <MESSAGE value="Get pretty good result in modelOutput" />
-    <option name="LAST_COMMIT_MESSAGE" value="Get pretty good result in modelOutput" />
+    <MESSAGE value="Complete! Final commit V1.0" />
+    <option name="LAST_COMMIT_MESSAGE" value="Complete! Final commit V1.0" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -649,7 +677,24 @@
           <line>35</line>
           <option name="timeStamp" value="10" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/train.py</url>
+          <line>39</line>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/dataLoader.py</url>
+          <line>121</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
       </breakpoints>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
     </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
@@ -659,10 +704,10 @@
     </watches-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/fbankDataTransform$train.coverage" NAME="train Coverage Results" MODIFIED="1569742626249" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/fbankDataTransform$train.coverage" NAME="train Coverage Results" MODIFIED="1570288327155" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/fbankDataTransform$model.coverage" NAME="model Coverage Results" MODIFIED="1569688849838" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/fbankDataTransform$dataLoader.coverage" NAME="dataLoader Coverage Results" MODIFIED="1569744826232" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/fbankDataTransform$util.coverage" NAME="util Coverage Results" MODIFIED="1569739462554" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/fbankDataTransform$dataLoader.coverage" NAME="dataLoader Coverage Results" MODIFIED="1570377252863" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/fbankDataTransform$util.coverage" NAME="util Coverage Results" MODIFIED="1570377738669" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/tensorflow/keras/layers/__init__.py">
@@ -683,13 +728,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="253">
           <caret line="26" column="44" selection-start-line="26" selection-start-column="44" selection-end-line="26" selection-end-column="44" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/tensorflow/python/keras/engine/base_layer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="604">
-          <caret line="750" column="18" lean-forward="true" selection-start-line="750" selection-start-column="18" selection-end-line="750" selection-end-column="18" />
         </state>
       </provider>
     </entry>
@@ -728,44 +766,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/tensorflow/python/training/saver.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="254">
+          <caret line="1560" column="28" selection-start-line="1560" selection-start-column="28" selection-end-line="1560" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fbankreader3.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/tensorflow/python/framework/ops.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="435" selection-start-line="435" selection-end-line="435" />
+        <state relative-caret-position="141">
+          <caret line="1005" selection-start-line="1005" selection-end-line="1005" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/util.py">
+    <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/tensorflow/python/keras/engine/base_layer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2944">
-          <caret line="128" column="49" selection-start-line="128" selection-start-column="49" selection-end-line="128" selection-end-column="49" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="529">
-          <caret line="23" column="42" selection-start-line="23" selection-start-column="42" selection-end-line="23" selection-end-column="42" />
+        <state relative-caret-position="141">
+          <caret line="647" selection-start-line="647" selection-end-line="647" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="207">
-          <caret line="9" selection-start-line="9" selection-end-line="9" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/train.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="161">
-          <caret line="7" selection-start-line="7" selection-end-line="7" />
+        <state relative-caret-position="92">
+          <caret line="40" selection-start-line="40" selection-end-line="40" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>
@@ -774,10 +802,38 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/dataLoader.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="322">
-          <caret line="20" column="76" selection-start-line="20" selection-start-column="76" selection-end-line="20" selection-end-column="76" />
+        <state relative-caret-position="285">
+          <caret line="137" column="66" lean-forward="true" selection-start-line="137" selection-start-column="66" selection-end-line="137" selection-end-column="66" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/train.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-230">
+          <caret line="29" column="49" lean-forward="true" selection-start-line="29" selection-start-column="49" selection-end-line="29" selection-end-column="49" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="23">
+          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="293">
+          <caret line="300" column="21" lean-forward="true" selection-start-line="300" selection-start-column="21" selection-end-line="300" selection-end-column="21" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+            <element signature="e#3160#5499#0" />
           </folding>
         </state>
       </provider>
