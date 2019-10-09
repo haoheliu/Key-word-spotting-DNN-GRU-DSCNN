@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="bbbe3065-404a-401f-b17f-db0529547172" name="Default" comment="Add deeper model and ROC curve" />
+    <list default="true" id="bbbe3065-404a-401f-b17f-db0529547172" name="Default" comment="Cancel the push of well trained model" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,8 +35,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/train.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-230">
-              <caret line="29" column="49" lean-forward="true" selection-start-line="29" selection-start-column="49" selection-end-line="29" selection-end-column="49" />
+            <state relative-caret-position="529">
+              <caret line="29" column="49" selection-start-line="29" selection-start-column="49" selection-end-line="29" selection-end-column="49" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
               </folding>
@@ -52,7 +52,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/util.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1474">
+            <state relative-caret-position="5037">
               <caret line="276" column="42" selection-start-line="276" selection-start-column="42" selection-end-line="276" selection-end-column="42" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
@@ -65,8 +65,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/config.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="230">
-              <caret line="10" column="23" lean-forward="true" selection-start-line="10" selection-start-column="23" selection-end-line="10" selection-end-column="23" />
+            <state relative-caret-position="529">
+              <caret line="23" column="52" lean-forward="true" selection-start-line="23" selection-start-column="52" selection-end-line="23" selection-end-column="52" />
             </state>
           </provider>
         </entry>
@@ -74,8 +74,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dataLoader.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="137" column="66" lean-forward="true" selection-start-line="137" selection-start-column="66" selection-end-line="137" selection-end-column="66" />
+            <state relative-caret-position="2990">
+              <caret line="137" column="66" selection-start-line="137" selection-start-column="66" selection-end-line="137" selection-end-column="66" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
               </folding>
@@ -86,7 +86,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="92">
+            <state relative-caret-position="851">
               <caret line="40" selection-start-line="40" selection-end-line="40" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
@@ -98,7 +98,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/tensorflow/python/keras/engine/base_layer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="141">
+            <state relative-caret-position="14099">
               <caret line="647" selection-start-line="647" selection-end-line="647" />
             </state>
           </provider>
@@ -107,7 +107,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/tensorflow/python/framework/ops.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="141">
+            <state relative-caret-position="22149">
               <caret line="1005" selection-start-line="1005" selection-end-line="1005" />
             </state>
           </provider>
@@ -167,10 +167,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-308" />
-    <option name="y" value="-10" />
-    <option name="width" value="1945" />
-    <option name="height" value="1104" />
+    <option name="x" value="-310" />
+    <option name="y" value="-13" />
+    <option name="width" value="1948" />
+    <option name="height" value="1106" />
   </component>
   <component name="ProjectId" id="1RHfl0eGzEUHMiT7IUtVHRKWbMU" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
@@ -191,7 +191,7 @@
             <path>
               <item name="fbankDataTransform" type="b2602c69:ProjectViewProjectNode" />
               <item name="fbankDataTransform" type="462c0819:PsiDirectoryNode" />
-              <item name="DeepModel" type="462c0819:PsiDirectoryNode" />
+              <item name="pickles" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -427,6 +427,7 @@
       <workItem from="1570332192521" duration="599000" />
       <workItem from="1570335826905" duration="6816000" />
       <workItem from="1570372937441" duration="5401000" />
+      <workItem from="1570417695984" duration="1360000" />
     </task>
     <task id="LOCAL-00001" summary="update fbankreader to python3">
       <created>1569289062523</created>
@@ -540,11 +541,18 @@
       <option name="project" value="LOCAL" />
       <updated>1570377893878</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Cancel the push of well trained model">
+      <created>1570417827844</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1570417827844</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="151525000" />
+    <option name="totallyTimeSpent" value="152885000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -556,10 +564,10 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1563" height="855" extended-state="6" />
+    <frame x="-7" y="-7" width="1563" height="855" extended-state="7" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15681063" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15880398" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -578,9 +586,9 @@
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="SciView" order="3" sideWeight="0.95988935" visible="true" weight="0.21461794" />
+      <window_info anchor="right" id="SciView" order="3" sideWeight="0.9585062" visible="true" weight="0.21461794" />
       <window_info anchor="right" id="Database" order="4" weight="0.32956812" />
-      <window_info anchor="right" x="0" y="0" width="337" height="642" id="Documentation" order="5" sideWeight="0.04011065" side_tool="true" visible="true" weight="0.21461794" />
+      <window_info anchor="right" x="0" y="0" width="337" height="642" id="Documentation" order="5" sideWeight="0.041493777" side_tool="true" visible="true" weight="0.21461794" />
       <window_info anchor="right" id="Coverage" order="6" side_tool="true" />
     </layout>
     <layout-to-restore>
@@ -668,7 +676,8 @@
     <MESSAGE value="Get pretty good result in modelOutput" />
     <MESSAGE value="Complete! Final commit V1.0" />
     <MESSAGE value="Add deeper model and ROC curve" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add deeper model and ROC curve" />
+    <MESSAGE value="Cancel the push of well trained model" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cancel the push of well trained model" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -758,13 +767,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Posterior.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="115">
-          <caret line="5" lean-forward="true" selection-start-line="5" selection-end-line="5" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/Posterior.py" />
     <entry file="file://$USER_HOME$/Anaconda3/envs/tf1.12/Lib/codecs.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="143">
@@ -779,56 +782,25 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fbankreader3.py">
+    <entry file="file://$PROJECT_DIR$/DeepModel/checkpoint">
       <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/tensorflow/python/framework/ops.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="141">
-          <caret line="1005" selection-start-line="1005" selection-end-line="1005" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/tensorflow/python/keras/engine/base_layer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="141">
-          <caret line="647" selection-start-line="647" selection-end-line="647" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="92">
-          <caret line="40" selection-start-line="40" selection-end-line="40" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/dataLoader.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="137" column="66" lean-forward="true" selection-start-line="137" selection-start-column="66" selection-end-line="137" selection-end-column="66" />
-          <folding>
-            <element signature="e#0#21#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-230">
-          <caret line="29" column="49" lean-forward="true" selection-start-line="29" selection-start-column="49" selection-end-line="29" selection-end-column="49" />
+        <state relative-caret-position="529">
+          <caret line="29" column="49" selection-start-line="29" selection-start-column="49" selection-end-line="29" selection-end-column="49" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/fbankreader3.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/util.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1474">
+        <state relative-caret-position="5037">
           <caret line="276" column="42" selection-start-line="276" selection-start-column="42" selection-end-line="276" selection-end-column="42" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
@@ -837,13 +809,44 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/DeepModel/checkpoint">
-      <provider selected="true" editor-type-id="text-editor" />
+    <entry file="file://$PROJECT_DIR$/dataLoader.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2990">
+          <caret line="137" column="66" selection-start-line="137" selection-start-column="66" selection-end-line="137" selection-end-column="66" />
+          <folding>
+            <element signature="e#0#21#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="851">
+          <caret line="40" selection-start-line="40" selection-end-line="40" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/tensorflow/python/keras/engine/base_layer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="14099">
+          <caret line="647" selection-start-line="647" selection-end-line="647" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Roaming/Python/Python36/site-packages/tensorflow/python/framework/ops.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="22149">
+          <caret line="1005" selection-start-line="1005" selection-end-line="1005" />
+        </state>
+      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/config.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="230">
-          <caret line="10" column="23" lean-forward="true" selection-start-line="10" selection-start-column="23" selection-end-line="10" selection-end-column="23" />
+        <state relative-caret-position="529">
+          <caret line="23" column="52" lean-forward="true" selection-start-line="23" selection-start-column="52" selection-end-line="23" selection-end-column="52" />
         </state>
       </provider>
     </entry>
