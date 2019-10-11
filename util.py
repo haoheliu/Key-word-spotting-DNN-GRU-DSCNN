@@ -9,6 +9,7 @@ import pylab as pl
 
 from sklearn.metrics import roc_curve, auc
 from config import Config
+from PosteriorHandling import posteriorHandling
 
 class Util:
     def __init__(self,sampleRate = 160):
@@ -21,7 +22,7 @@ class Util:
         return fname.split('.')[-2].split('/')[-1]
 
     # Combine each frame's feature with left and right frames'
-    def fbankTransform(self,fPath = "positive_00011.fbank",save = True,test = True):
+    def fbankTransform(self,fPath = None,save = True,test = True):
         raw = fbankreader3.HTKFeat_read(fPath)
         raw = raw.getall().tolist()
         frameLength = len(raw)
@@ -115,12 +116,13 @@ class Util:
             pl.legend()
             pl.ylabel("Probability")
             pl.subplot(515)
-            confidence = self.posteriorHandling(modelOutput)
-            pl.plot(self.posteriorHandling(modelOutput))
+            confidence = posteriorHandling(modelOutput)
+            pl.plot(posteriorHandling(modelOutput))
             plt.xlabel("Frames")
             plt.ylabel("Confidence")
-            if(not os.path.exists("./images/compare/"+str(Config.numEpochs))):
-                os.mkdir("./images/compare/"+str(Config.numEpochs))
+            # if(not os.path.exists("./images/compare/"+str(Config.numEpochs))):
+            #
+            #     os.mkdir("./images/compare/"+str(Config.numEpochs))
             # pl.savefig("./images/compare/"+str(Config.numEpochs)+"/"+fname+".png")
             pl.show()
             return confidence
@@ -202,65 +204,6 @@ class Util:
                 trainDataFiles.remove(trainDataFile)
         return testDataFiles, trainDataFiles
 
-    def visualizeModelOutput(self,sess,modelOutput,modelNegativeOutput):
-        modelOutput = sess.run(modelOutput)
-        visual = modelOutput.T
-        visualNegative = modelNegativeOutput.T
-        print("here")
-        plt.figure(figsize=(16, 10))
-        plt.title("Positive")
-        plt.subplot(211)
-        plt.plot(visual[0], 'r', label="filler")
-        plt.plot(visualNegative[0], 'b--', label="filler-negative")
-        plt.legend()
-        plt.xlabel("frames")
-        plt.ylabel("confidence")
-        plt.subplot(212)
-        plt.title("Positive")
-        plt.plot(visual[1], 'b', label="hello")
-        plt.plot(visual[2], 'g', label="xiaogua")
-        plt.plot(visualNegative[1], 'r--', label="hello-negative")
-        plt.plot(visualNegative[2], 'c--', label="xiaogua-negative")
-        plt.legend()
-        plt.xlabel("frames")
-        plt.ylabel("confidence")
-        self.counter += 1
-        # plt.savefig("./images/fig"+str(self.counter)+".png")
-        plt.show()
-
-    def posteriorHandling_v0(self,modelOutput):
-        confidence = np.zeros(shape=(modelOutput.shape[0]))
-        # confidence[0] = (modelOutput[0][1] * modelOutpsut[0][2]) ** 0.5
-        confidence[0] = (modelOutput[0][1] + modelOutput[0][2])# ** 0.5
-        for i in range(2, modelOutput.shape[0] + 1):
-            h_smooth = max(1, i - Config.w_smooth + 1)
-            modelOutput[i - 1] = modelOutput[h_smooth-1:i].sum(axis=0) / (i - h_smooth + 1)
-            h_max = max(1, i - Config.w_max + 1)
-            windowMax = np.max(modelOutput[h_max:i], axis=0)
-            confidence[i - 1] = (windowMax[1] + windowMax[2]) # ** 0.5
-        return confidence[:]
-
-    def posteriorHandling(self,modelOutput):
-        confidence = np.zeros(shape=(modelOutput.shape[0]))
-        # confidence[0] = (modelOutput[0][1] * modelOutpsut[0][2]) ** 0.5
-        confidence[0] = (modelOutput[0][1] + modelOutput[0][2])# ** 0.5
-        for i in range(2, modelOutput.shape[0] + 1):
-            h_smooth = max(1, i - Config.w_smooth + 1)
-            modelOutput[i - 1] = modelOutput[h_smooth-1:i].sum(axis=0) / (i - h_smooth + 1)
-            h_max = max(1, i - Config.w_max + 1)
-            windowMax = np.max(modelOutput[h_max:i], axis=0)
-            confidence[i - 1] = (windowMax[1] + windowMax[2]) # ** 0.5
-        return confidence[:]
-
-    def calculateAccuracy(output, desired):
-        assert (output.shape == desired.shape)
-        length = output.shape[0]
-        same = 0
-        for i, j in zip(output, desired):
-            if (i == j):
-                same += 1
-        return same / length
-
     # Realize a ROC curve
     def drawROC(self,desiredLabelPath,confidencePath):
         desiredLabel = self.loadPkl(desiredLabelPath)
@@ -295,6 +238,16 @@ class Util:
 
 if __name__ == "__main__":
     util = Util()
+    # util.constructOfflineData()
+    files =util.testNegativeDataFiles+util.testPositiveDataFiles+util.trainNegativeDataFiles+util.trainPositiveDataFiles
+    shapes = []
+    for each in files:
+        temp = np.load(Config.offlineDataPath + each.split(".")[-2]+"_data.npy")
+        shapes.append(temp.shape[0])
+    print(max(shapes))
+
+    '''
+    util = Util()
     xcoord_deep,ycoord_deep = util.drawROC("./pickles/DeepDesiredLabel.pkl","./pickles/DeepConfidence.pkl")
     xcoord,ycoord = util.drawROC("./pickles/desiredLabel.pkl","./pickles/confidence.pkl")
     # plt.xlim((0,0.4))
@@ -304,3 +257,5 @@ if __name__ == "__main__":
     plt.scatter(xcoord,ycoord,s = 1)
     plt.scatter(xcoord_deep, ycoord_deep, s=1)
     plt.show()
+    '''
+

@@ -1,5 +1,6 @@
 from util import Util
 from config import Config
+from PosteriorHandling import posteriorHandling
 
 import numpy as np
 import random
@@ -13,8 +14,18 @@ class dataLoader:
         self.currentTestDataFile = 1
         self.currentTrainDataFile = 0
 
-        self.trainDataFiles = self.util.trainPositiveDataFiles +self.util.trainNegativeDataFiles
-        self.testDataFiles = self.util.testPositiveDataFiles+self.util.testNegativeDataFiles
+        self.trainDataFiles = self.util.trainPositiveDataFiles[:30] +self.util.trainNegativeDataFiles[:30]
+        # self.testDataFiles = self.util.testPositiveDataFiles[:20]+self.util.testNegativeDataFiles[:20]
+        # self.testDataFiles = ["positive_00001.fbank", "positive_00002.fbank", "positive_00003.fbank",
+        #                       "positive_00004.fbank", "positive_00005.fbank", "positive_00006.fbank",
+        #                       "positive_00009.fbank", "positive_00008.fbank", "positive_00007.fbank",
+        #                       "negative_00001.fbank", "negative_00002.fbank", "negative_00003.fbank",
+        #                       "negative_00004.fbank", "negative_00005.fbank", "negative_00006.fbank",
+        #                       "negative_00009.fbank", "negative_00008.fbank", "negative_00007.fbank"
+        #                       ]
+        self.testDataFiles = ["positive_00001.fbank",
+                              "negative_00001.fbank"
+                              ]
         self.maxTestCacheSize = Config.testBatchSize * Config.maximumFrameNumbers
         self.maxTrainCacheSize = Config.trainBatchSize * Config.maximumFrameNumbers
         self.trainData = {
@@ -26,12 +37,49 @@ class dataLoader:
             "label": []
         }
 
+    # Get a batch of positive training example for gru
+    def getGRUTrainNextBatch(self):
+        # Reset
+        self.trainData = {
+            "data": np.zeros(shape=[Config.maximumFrameNumbers,Config.trainBatchSize, (Config.leftFrames + Config.rightFrames + 1) * 40]),
+            "label": np.zeros(shape=[Config.maximumFrameNumbers,Config.trainBatchSize]),
+            "length":np.zeros(shape=[Config.trainBatchSize])
+        }
+        counter = 0
+        # Report
+        if (self.currentTrainDataFile % 1000 == 0):
+            print(str(self.currentTrainDataFile) + " training files finished!")
+        for i in range(Config.trainBatchSize):
+            if (self.currentTrainDataFile >= len(self.trainDataFiles)):
+                self.currentTrainDataFile = 0  # repeat the hole dataset again
+                Config.numEpochs -= 1
+                if (Config.shuffle == True):
+                    print("Shuffle training data ...")
+                    random.shuffle(self.trainDataFiles)
+                return np.empty(shape=[0]), np.empty(shape=[0]),np.empty(shape=[0])
+            fname = self.util.splitFileName(self.trainDataFiles[self.currentTrainDataFile])
+            try:
+                result = np.load(Config.offlineDataPath + fname + "_data.npy")
+                label = np.load(Config.offlineDataPath + fname + "_label.npy")
+            except:
+                print("Error while reading file: " + fname)
+                self.currentTrainDataFile += 1
+                continue
+            self.currentTrainDataFile += 1
+            currentRow= 0
+            for data, label in zip(result, label):
+                self.trainData['data'][currentRow][i] = data
+                self.trainData['label'][currentRow][i] = np.argmax(label)
+                currentRow += 1
+            self.trainData['length'][i] = currentRow
+        return self.trainData['data'], self.trainData['label'],self.trainData['length']
+
     # Get a batch of positive training example
     def getTrainNextBatch(self):
         # Reset
         self.trainData = {
             "data": np.empty(shape=[self.maxTrainCacheSize,(Config.leftFrames+Config.rightFrames+1)*40]),
-            "label": np.empty(shape=[self.maxTrainCacheSize,3])
+            "label": np.empty(shape=[self.maxTrainCacheSize,3]),
         }
         counter,currentRow = 0,0
         # Report
@@ -120,25 +168,25 @@ class dataLoader:
                 print("Error:" + file)
                 continue
             try:
+                if(Config.modelName == "GRU"):
+                    testData = np.reshape(testData,newshape=(testData.shape[0],1,testData.shape[1]))
                 modelOutput = sess.run(model.testModel(),feed_dict={model.TestInput:testData})
             except:
-                print("here:",file,testData)
-            # modelOutput += Config.base
-            confidence.append(np.max(self.util.posteriorHandling(modelOutput)))
+                print("Exception:",file,testData)
+            # # modelOutput += Config.base
+            confidence.append(np.max(posteriorHandling(modelOutput)))
+            self.util.plotFileWave(file,modelOutput=modelOutput)
             if('positive' in file):
                 desiredLable .append(1)
             else:
                 desiredLable.append(0)
-        print(confidence)
         auc = self.util.plotRoc(desiredLable,confidence)
         if(not os.path.exists("./pickles")):
             os.mkdir("./pickles")
-        if(Config.useDeepModel == False):
-            self.util.savePkl("pickles/desiredLabel.pkl",desiredLable)
-            self.util.savePkl("pickles/confidence.pkl",confidence)
-        else:
-            self.util.savePkl("pickles/DeepDesiredLabel.pkl",desiredLable)
-            self.util.savePkl("pickles/DeepConfidence.pkl",confidence)
+        if(not os.path.exists("./pickles/"+Config.modelName+"/")):
+            os.mkdir("./pickles/"+Config.modelName+"/")
+        self.util.savePkl("pickles/"+Config.modelName+"/DesiredLabel.pkl",desiredLable)
+        self.util.savePkl("pickles/"+Config.modelName+"/Confidence.pkl",confidence)
         return auc
 
     def visualizaPositiveDataFiles(self,fileNames,sess,model):
@@ -157,10 +205,15 @@ if __name__ == "__main__":
     os.environ["CUDA_VISIBLE_DEVICES"] = '0,1'
     config = tf.ConfigProto(allow_soft_placement=True)  # log_device_placement=True
     config.gpu_options.allow_growth = True
+
     dataloader = dataLoader()
-    dnnModel = Model()
-    saver = tf.train.Saver()
-    with tf.Session() as sess:
-        saver.restore(sess,save_path="./Model/model.ckpt")
-        dataloader.visualizeROC(dataloader.testDataFiles,sess,dnnModel)
+    # model = Model()
+    data,label,length = dataloader.getGRUTrainNextBatch()
+    print(data.shape,label.shape,length.shape)
+    # saver = tf.train.Saver()
+    # with tf.Session() as sess:
+    #     # sess.run(tf.global_variables_initializer())
+    #     saver = tf.train.import_meta_graph('./models/GRU/model.ckpt.meta')
+    #     saver.restore(sess, tf.train.latest_checkpoint("./models/GRU"))
+    #     dataloader.visualizeROC(dataloader.testDataFiles,sess,model)
 

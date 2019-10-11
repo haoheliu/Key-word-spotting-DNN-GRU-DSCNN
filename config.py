@@ -1,22 +1,23 @@
 import tensorflow as tf
 
 class Config:
-    localHost = True
-    useDeepModel = False
-    trainBatchSize = 100
+    localHost = False
+    modelName = "GRU" # "GRU" "DNN_6_512" "DNN_3_128"
+    lossFunc = "seqLoss" # "Paper" "crossEntropy"
+    trainBatchSize = 4
     testBatchSize = 0
-    leftFrames = 30
+    leftFrames = 15
     shuffle = True
-    rightFrames = 10
-    learningRate = 0.000001
+    rightFrames = 5
+    learningRate = 0.001
     decay_rate = 0.85
     numEpochs = 30
     w_smooth = 3
     w_max = 10
-    maximumFrameNumbers = 1000
+    maximumFrameNumbers = 1300 # Max: 1259
 
-    base = 5
-
+    useTensorBoard = False
+    testMode = False
     if(localHost == True):
         positiveTestPath = "./data/Positive/test/"
         positiveTrainPath = "./data/Positive/train/"

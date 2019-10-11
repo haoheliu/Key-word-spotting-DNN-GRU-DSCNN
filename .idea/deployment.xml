@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="Copy of project-level server '10.69.30.166'">
+    <serverData>
+      <paths name="Copy of project-level server '10.69.30.166'">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/disk2/internship_anytime/liuhaohe/he_workspace/github/Key-word-spotting-DNN/" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>
