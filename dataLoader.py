@@ -14,7 +14,7 @@ class dataLoader:
         self.currentTestDataFile = 1
         self.currentTrainDataFile = 0
 
-        self.trainDataFiles = self.util.trainPositiveDataFiles[:30] +self.util.trainNegativeDataFiles[:30]
+        self.trainDataFiles = self.util.trainPositiveDataFiles +self.util.trainNegativeDataFiles
         # self.testDataFiles = self.util.testPositiveDataFiles[:20]+self.util.testNegativeDataFiles[:20]
         # self.testDataFiles = ["positive_00001.fbank", "positive_00002.fbank", "positive_00003.fbank",
         #                       "positive_00004.fbank", "positive_00005.fbank", "positive_00006.fbank",

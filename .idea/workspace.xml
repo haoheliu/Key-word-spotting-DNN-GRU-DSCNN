@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="bbbe3065-404a-401f-b17f-db0529547172" name="Default" comment="Cancel the push of well trained model">
-      <change afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/PosteriorHandling.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/fbankDataTransform.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/fbankDataTransform.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="bbbe3065-404a-401f-b17f-db0529547172" name="Default" comment="First trainable version of GRU-KWS">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dataLoader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataLoader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/util.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -289,7 +280,7 @@
       <workItem from="1570335826905" duration="6816000" />
       <workItem from="1570372937441" duration="5401000" />
       <workItem from="1570417695984" duration="1360000" />
-      <workItem from="1570706257008" duration="34999000" />
+      <workItem from="1570706257008" duration="35177000" />
     </task>
     <task id="LOCAL-00001" summary="update fbankreader to python3">
       <created>1569289062523</created>
@@ -410,7 +401,14 @@
       <option name="project" value="LOCAL" />
       <updated>1570417827844</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="First trainable version of GRU-KWS">
+      <created>1570800818852</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1570800818853</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TodoView">
@@ -469,7 +467,8 @@
     <MESSAGE value="Complete! Final commit V1.0" />
     <MESSAGE value="Add deeper model and ROC curve" />
     <MESSAGE value="Cancel the push of well trained model" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cancel the push of well trained model" />
+    <MESSAGE value="First trainable version of GRU-KWS" />
+    <option name="LAST_COMMIT_MESSAGE" value="First trainable version of GRU-KWS" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -527,7 +526,7 @@
     <SUITE FILE_PATH="coverage/Key_word_spotting_DNN$model.coverage" NAME="model Coverage Results" MODIFIED="1570788696463" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Key_word_spotting_DNN$dataLoader.coverage" NAME="dataLoader Coverage Results" MODIFIED="1570794162139" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/fbankDataTransform$train.coverage" NAME="train Coverage Results" MODIFIED="1570288327155" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Key_word_spotting_DNN$train.coverage" NAME="train Coverage Results" MODIFIED="1570800741657" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Key_word_spotting_DNN$train.coverage" NAME="train Coverage Results" MODIFIED="1570800909408" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/fbankDataTransform$dataLoader.coverage" NAME="dataLoader Coverage Results" MODIFIED="1570377252863" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
