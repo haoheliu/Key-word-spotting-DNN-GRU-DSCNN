@@ -15,7 +15,7 @@ class Model:
             pass
 
         if(Config.modelName == "GRU"):
-            self.TestInput = tf.placeholder(tf.float32, shape=(None,1, 40 * (Config.leftFrames + Config.rightFrames + 1)), name='batch_input')
+            pass
         else:
             self.TestInput = tf.placeholder(tf.float32, shape=(None, 40 * (Config.leftFrames + Config.rightFrames + 1)), name='batch_input')
 
@@ -119,23 +119,23 @@ class Model:
             self.model.add(Dense(512, activation=tf.nn.relu))
             self.model.add(Dense(3,name="Output_layer"))
 
+    def testModel(self):
+        return self.model(tf.convert_to_tensor(self.TestInput,dtype=tf.float32))
+
     def GRU(self,batch,length):
-        with tf.name_scope("GRU"):
-            cell = tf.contrib.rnn.GRUCell(num_units=128)
+        with tf.variable_scope("GRU",reuse=tf.AUTO_REUSE):
+            cell = tf.contrib.rnn.GRUCell(num_units=128,name = "gru_cell")
             outputs, _ = tf.nn.dynamic_rnn(
                 cell=cell,
                 dtype=tf.float32,
                 sequence_length=length,
                 inputs=batch,
                 time_major= True)
-            outputs = tf.layers.dense(outputs, 3)
+            outputs = tf.layers.dense(outputs, 3,name="dense_output")
         return outputs
 
     def __call__(self, inputs,mask = None):
         return self.model(inputs = inputs,mask = mask)
-
-    def testModel(self):
-        return self.model(tf.convert_to_tensor(self.TestInput,dtype=tf.float32))
 
     def lossFunc_Paper(self, inputs, targets):
         with tf.name_scope("lossFunction"):
@@ -178,27 +178,26 @@ class Model:
 if __name__ == "__main__":
     from dataLoader import dataLoader
     dataloader = dataLoader()
+    saver = tf.train.import_meta_graph("./models/GRU/model.ckpt.meta")
+    with tf.Session() as sess:
+        saver.restore(sess,"./models/GRU/model.ckpt")
+        graph = tf.get_default_graph()
+        for i in range(10):
+            data,label,length = dataloader.getGRUTrainNextBatch()
+            predNetwork = graph.get_collection("Pred_network")
+            loss = predNetwork[1]
+            trainInput = graph.get_operation_by_name("Placeholder/batch_ph").outputs[0]
+            trainLabel = graph.get_operation_by_name("Placeholder/label_ph").outputs[0]
+            trainLength = graph.get_operation_by_name("Placeholder/length_ph").outputs[0]
+            lossVal = sess.run(loss,feed_dict={trainInput:data,trainLabel:label,trainLength:length})
+            print(lossVal)
 
-    writer = tf.summary.FileWriter("./log", tf.get_default_graph())
-    writer.close()
-    # with tf.Session() as sess:
-    #     sess.run(tf.global_variables_initializer())
-    #     ddata,dlabel,dlength = dataloader.getGRUTrainNextBatch() # (1300, 8, 840) (1300, 8) (8,)
-    #     output = sess.run([outputs],feed_dict={
-    #             batch:ddata,
-    #             label:dlabel,
-    #             length:dlength
-    #     })
-    #     print(output)
-    #     print(len(output))
-    #     print(output[0].shape)
-
-
-    # input0 = tf.Variable(tf.ones([10,100,1640]))
-    # input1 = tf.Variable(tf.ones([100,20,1640]))
-    # output0 = model(inputs = input0)
-    # with tf.Session() as sess:
-    #     sess.run(tf.global_variables_initializer())
-    #     result0 = sess.run(output0)
-    #     print(result0)
-    #     print(model.model.summary())
+            # data,label,length,fnames = dataloader.getGRUTestNextBatch()
+            # testOutput= graph.get_collection("Pred_network")
+            # testInput = graph.get_operation_by_name("Placeholder/batch_test").outputs[0]
+            # testLength = graph.get_operation_by_name("Placeholder/length_test").outputs[0]
+            # testOutput = sess.run(testOutput,feed_dict={testInput:data,testLength:length})
+            # visualizeData = {}
+            # for i,fname in enumerate(fnames):
+            #     visualizeData[fname] = testOutput[0][:int(length[i]),i,:]
+            #     dataloader.util.plotFileWave(fname,visualizeData[fname])

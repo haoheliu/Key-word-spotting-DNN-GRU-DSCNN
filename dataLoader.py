@@ -11,21 +11,20 @@ import os
 class dataLoader:
     def __init__(self):
         self.util = Util()
-        self.currentTestDataFile = 1
+        self.currentTestDataFile = 0
         self.currentTrainDataFile = 0
 
         self.trainDataFiles = self.util.trainPositiveDataFiles +self.util.trainNegativeDataFiles
-        # self.testDataFiles = self.util.testPositiveDataFiles[:20]+self.util.testNegativeDataFiles[:20]
-        # self.testDataFiles = ["positive_00001.fbank", "positive_00002.fbank", "positive_00003.fbank",
-        #                       "positive_00004.fbank", "positive_00005.fbank", "positive_00006.fbank",
-        #                       "positive_00009.fbank", "positive_00008.fbank", "positive_00007.fbank",
-        #                       "negative_00001.fbank", "negative_00002.fbank", "negative_00003.fbank",
-        #                       "negative_00004.fbank", "negative_00005.fbank", "negative_00006.fbank",
-        #                       "negative_00009.fbank", "negative_00008.fbank", "negative_00007.fbank"
-        #                       ]
-        self.testDataFiles = ["positive_00001.fbank",
-                              "negative_00001.fbank"
+        self.testDataFiles = self.util.testPositiveDataFiles[:50]+self.util.testNegativeDataFiles[:50]+["positive_00001.fbank", "positive_00002.fbank", "positive_00003.fbank",
+                              "positive_00004.fbank", "positive_00005.fbank", "positive_00006.fbank",
+                              "positive_00009.fbank", "positive_00008.fbank", "positive_00007.fbank",
+                              "negative_00001.fbank", "negative_00002.fbank", "negative_00003.fbank",
+                              "negative_00004.fbank", "negative_00005.fbank", "negative_00006.fbank",
+                              "negative_00009.fbank", "negative_00008.fbank", "negative_00007.fbank"
                               ]
+        # self.testDataFiles = ["positive_00001.fbank",
+        #                       "negative_00001.fbank"
+        #                       ]
         self.maxTestCacheSize = Config.testBatchSize * Config.maximumFrameNumbers
         self.maxTrainCacheSize = Config.trainBatchSize * Config.maximumFrameNumbers
         self.trainData = {
@@ -36,6 +35,44 @@ class dataLoader:
             "data": [],
             "label": []
         }
+
+    # Get a batch of positive training example for gru
+    def getGRUTestNextBatch(self):
+        # Reset
+        self.testData = {
+            "data": np.zeros(shape=[Config.maximumFrameNumbers,Config.testBatchSize, (Config.leftFrames + Config.rightFrames + 1) * 40]),
+            "label": np.zeros(shape=[Config.maximumFrameNumbers,Config.testBatchSize]),
+            "length":np.zeros(shape=[Config.testBatchSize]),
+            "fnames":[]
+        }
+        # Report
+        if (self.currentTestDataFile % 1000 == 0):
+            print(str(self.currentTestDataFile) + " test files finished!")
+        for i in range(Config.testBatchSize):
+            if (self.currentTestDataFile >= len(self.testDataFiles)):
+                self.currentTestDataFile = 0  # repeat the hole dataset again
+                Config.numEpochs -= 1
+                if (Config.shuffle == True):
+                    print("Shuffle test data ...")
+                    random.shuffle(self.testDataFiles)
+                return np.empty(shape=[0]), np.empty(shape=[0]),np.empty(shape=[0]),np.empty(shape=[0])
+            fname = self.util.splitFileName(self.testDataFiles[self.currentTestDataFile])
+            self.testData["fnames"].append(fname)
+            try:
+                result = np.load(Config.offlineDataPath + fname + "_data.npy")
+                label = np.load(Config.offlineDataPath + fname + "_label.npy")
+            except Exception as e:
+                print("Error while reading file: " + fname,e)
+                self.currentTestDataFile += 1
+                continue
+            self.currentTestDataFile += 1
+            currentRow= 0
+            for data, label in zip(result, label):
+                self.testData['data'][currentRow][i] = data
+                self.testData['label'][currentRow][i] = np.argmax(label)
+                currentRow += 1
+            self.testData['length'][i] = currentRow
+        return self.testData['data'], self.testData['label'],self.testData['length'],self.testData["fnames"]
 
     # Get a batch of positive training example for gru
     def getGRUTrainNextBatch(self):
@@ -61,8 +98,8 @@ class dataLoader:
             try:
                 result = np.load(Config.offlineDataPath + fname + "_data.npy")
                 label = np.load(Config.offlineDataPath + fname + "_label.npy")
-            except:
-                print("Error while reading file: " + fname)
+            except Exception as e:
+                print("Error while reading file: " + fname,e)
                 self.currentTrainDataFile += 1
                 continue
             self.currentTrainDataFile += 1
@@ -208,8 +245,8 @@ if __name__ == "__main__":
 
     dataloader = dataLoader()
     # model = Model()
-    data,label,length = dataloader.getGRUTrainNextBatch()
-    print(data.shape,label.shape,length.shape)
+    data,label,length,fnames = dataloader.getGRUTestNextBatch()
+    print(data.shape,label.shape,length,length[0],fnames)
     # saver = tf.train.Saver()
     # with tf.Session() as sess:
     #     # sess.run(tf.global_variables_initializer())
