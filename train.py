@@ -31,8 +31,7 @@ else:
     mask = tf.cast(tf.sequence_mask(lengths=length_ph, maxlen=Config.maximumFrameNumbers),dtype=tf.float32)
     mask = tf.transpose(mask)
     output = model.GRU(batch_ph,length_ph)
-    # testOutput = model.GRU(testInput,testLength) # TODO
-    # tf.add_to_collection("Pred_network",testOutput)# TODO
+    tf.add_to_collection("Pred_network",output)
 
     for i in range(Config.maximumFrameNumbers):
         batchList.append(output[i])
@@ -40,6 +39,7 @@ else:
         maskList.append(mask[i])
     loss = model.sequence_loss(batchList,targetList,maskList)
     tf.add_to_collection("Pred_network", loss)
+
 print("Model Ready!")
 print("Construct optimizer...")
 with tf.name_scope("modelOptimizer"):
@@ -47,9 +47,11 @@ with tf.name_scope("modelOptimizer"):
     learning_rate = tf.train.exponential_decay(Config.learningRate,
                                                global_step=global_step,
                                                decay_steps=int(10000/Config.trainBatchSize),
-                                               decay_rate=Config.decay_rate)
+                                               decay_rate=Config.decay_rate,
+                                               staircase=False)
     trainStep = tf.train.GradientDescentOptimizer(learning_rate=Config.learningRate,name="gradient_optimizer").minimize(loss,global_step=global_step)
 print("Optimizer Ready!")
+
 if(Config.testMode == True):
     saver = tf.train.Saver()
     with tf.Session(config=config) as sess:
@@ -69,17 +71,17 @@ else:
             writer = tf.summary.FileWriter("./log", tf.get_default_graph())
             writer.close()
         sess.run(tf.global_variables_initializer())
+        # Start training
         while(not Config.numEpochs == 0):
+            print(Config.numEpochs)
             print("Start testing...")
             data, label, length, fnames = dataloader.getGRUTestNextBatch()
             if(data.shape[0] == 0):
                 data, label, length, fnames = dataloader.getGRUTestNextBatch()
             temp = sess.run(output, feed_dict={batch_ph: data, length_ph: length})
             for i, fname in enumerate(fnames):
-                if(fname in dataloader.testDataFiles):
-                    dataloader.util.plotFileWave(fname, temp[:int(length[i]), i, :])
+                dataloader.util.plotFileWave(fname, temp[:int(length[i]), i, :])
             currentEpoch = Config.numEpochs
-            # dataloader.visualizeROC(dataloader.testDataFiles, sess, model)
             print("Saving session!")
             model.save(sess)
             print("[EPOCH " + str(totalEpoches - Config.numEpochs + 1), "]", "lr: ", sess.run(learning_rate))
@@ -88,7 +90,8 @@ else:
                     batchTrain,labelTrain = dataloader.getTrainNextBatch() # Get a batch of data
                 else:
                     data, labels, length = dataloader.getGRUTrainNextBatch()
-                # batchTrain, labelTrain = shuffle(batchTrain,labelTrain)
+                if(data.shape[0] == 0):
+                    break
                 if(not currentEpoch == Config.numEpochs):
                     break
                 if(Config.modelName != "GRU"):

@@ -15,7 +15,7 @@ class dataLoader:
         self.currentTrainDataFile = 0
 
         self.trainDataFiles = self.util.trainPositiveDataFiles +self.util.trainNegativeDataFiles
-        self.testDataFiles = self.util.testPositiveDataFiles[:50]+self.util.testNegativeDataFiles[:50]+["positive_00001.fbank", "positive_00002.fbank", "positive_00003.fbank",
+        self.testDataFiles = ["positive_00001.fbank", "positive_00002.fbank", "positive_00003.fbank",
                               "positive_00004.fbank", "positive_00005.fbank", "positive_00006.fbank",
                               "positive_00009.fbank", "positive_00008.fbank", "positive_00007.fbank",
                               "negative_00001.fbank", "negative_00002.fbank", "negative_00003.fbank",
@@ -51,7 +51,6 @@ class dataLoader:
         for i in range(Config.testBatchSize):
             if (self.currentTestDataFile >= len(self.testDataFiles)):
                 self.currentTestDataFile = 0  # repeat the hole dataset again
-                Config.numEpochs -= 1
                 if (Config.shuffle == True):
                     print("Shuffle test data ...")
                     random.shuffle(self.testDataFiles)

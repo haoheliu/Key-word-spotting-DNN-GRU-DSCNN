@@ -123,7 +123,7 @@ class Model:
         return self.model(tf.convert_to_tensor(self.TestInput,dtype=tf.float32))
 
     def GRU(self,batch,length):
-        with tf.variable_scope("GRU",reuse=tf.AUTO_REUSE):
+        with tf.variable_scope("GRU"):
             cell = tf.contrib.rnn.GRUCell(num_units=128,name = "gru_cell")
             outputs, _ = tf.nn.dynamic_rnn(
                 cell=cell,
