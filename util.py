@@ -102,6 +102,7 @@ class Util:
             visual = modelOutput.T
             pl.figure(figsize=(16,12))
             pl.subplot(511)
+            pl.title(fname)
             pl.plot(time, wave_data)
             pl.subplot(512)
             pl.plot(time, bitsLabel, c="g")
@@ -123,7 +124,7 @@ class Util:
             if(not os.path.exists("./images/compare/"+str(Config.numEpochs))):
                 os.mkdir("./images/compare/"+str(Config.numEpochs))
             pl.savefig("./images/compare/"+str(Config.numEpochs)+"/"+fname+".png")
-            # pl.show()
+            pl.show()
             return confidence
 
     def plotRoc(self,labels, predict_prob,show = True):
@@ -237,13 +238,19 @@ class Util:
 
 if __name__ == "__main__":
     util = Util()
-    # util.constructOfflineData()
-    files =util.testNegativeDataFiles+util.testPositiveDataFiles+util.trainNegativeDataFiles+util.trainPositiveDataFiles
-    shapes = []
-    for each in files:
-        temp = np.load(Config.offlineDataPath + each.split(".")[-2]+"_data.npy")
-        shapes.append(temp.shape[0])
-    print(max(shapes))
+    # xcoord_deep, ycoord_deep = util.drawROC("./pickles/DeepDesiredLabel.pkl", "./pickles/DeepConfidence.pkl")
+    gruxcoord, gruycoord = util.drawROC("./pickles/labels.pkl", "./pickles/peakVal.pkl")
+    xcoord_deep, ycoord_deep = util.drawROC("./pickles/DeepDesiredLabel.pkl", "./pickles/DeepConfidence.pkl")
+    xcoord, ycoord = util.drawROC("./pickles/desiredLabel.pkl", "./pickles/confidence.pkl")
+    plt.xlim((0,0.4))
+    plt.ylim((0,0.2))
+    plt.xlabel("False positive rate")
+    plt.ylabel("False reject rate")
+    plt.scatter(gruxcoord, gruycoord, s=1,label = "GRU_128")
+    plt.scatter(xcoord_deep, ycoord_deep, s=1,label = "DNN_512_6")
+    plt.scatter(xcoord, ycoord, s=1,label = "DNN_128_3")
+    plt.legend()
+    plt.show()
 
     '''
     util = Util()

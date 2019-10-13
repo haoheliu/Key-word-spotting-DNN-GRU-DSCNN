@@ -1,8 +1,12 @@
 import tensorflow as tf
 import os
+import numpy as np
 
 from tensorflow.keras.layers import Activation, Dense, GRU
 from config import Config
+from PosteriorHandling import posteriorHandling
+from util import Util
+import matplotlib.pyplot as plt
 
 class Model:
     def __init__(self):
@@ -176,28 +180,75 @@ class Model:
             self.saver.save(sess, "./models/GRU/model.ckpt")
 
 if __name__ == "__main__":
+
     from dataLoader import dataLoader
     dataloader = dataLoader()
     saver = tf.train.import_meta_graph("./models/GRU/model.ckpt.meta")
     with tf.Session() as sess:
         saver.restore(sess,"./models/GRU/model.ckpt")
         graph = tf.get_default_graph()
-        for i in range(10):
-            data,label,length = dataloader.getGRUTrainNextBatch()
-            predNetwork = graph.get_collection("Pred_network")
-            loss = predNetwork[1]
-            trainInput = graph.get_operation_by_name("Placeholder/batch_ph").outputs[0]
-            trainLabel = graph.get_operation_by_name("Placeholder/label_ph").outputs[0]
-            trainLength = graph.get_operation_by_name("Placeholder/length_ph").outputs[0]
-            lossVal = sess.run(loss,feed_dict={trainInput:data,trainLabel:label,trainLength:length})
-            print(lossVal)
+        peakVal = []
+        labels = []
+        predNetwork = graph.get_collection("Pred_network")
+        output = predNetwork[0]
+        trainInput = graph.get_operation_by_name("Placeholder/batch_ph").outputs[0]
+        trainLabel = graph.get_operation_by_name("Placeholder/label_ph").outputs[0]
+        trainLength = graph.get_operation_by_name("Placeholder/length_ph").outputs[0]
+        while(1):
+            data,label,length,fnames = dataloader.getGRUTestNextBatch()
+            if(data.shape[0] == 0):
+                break
+            temp = sess.run(output,feed_dict={trainInput:data,trainLength:length})
+            for i in range(len(fnames)):
+                # dataloader.util.plotFileWave(fnames[i], temp[:int(length[i]), i, :])
+                peakVal.append(np.max(posteriorHandling(temp[:int(length[i]),i,:])))
+                if("positive" in fnames[i]):
+                    labels.append(1)
+                else:
+                    labels.append(0)
+        dataloader.util.savePkl("./pickles/peakVal.pkl",peakVal)
+        dataloader.util.savePkl("./pickles/labels.pkl",labels)
 
-            # data,label,length,fnames = dataloader.getGRUTestNextBatch()
-            # testOutput= graph.get_collection("Pred_network")
-            # testInput = graph.get_operation_by_name("Placeholder/batch_test").outputs[0]
-            # testLength = graph.get_operation_by_name("Placeholder/length_test").outputs[0]
-            # testOutput = sess.run(testOutput,feed_dict={testInput:data,testLength:length})
-            # visualizeData = {}
-            # for i,fname in enumerate(fnames):
-            #     visualizeData[fname] = testOutput[0][:int(length[i]),i,:]
-            #     dataloader.util.plotFileWave(fname,visualizeData[fname])
+    util = Util()
+    # xcoord_deep, ycoord_deep = util.drawROC("./pickles/DeepDesiredLabel.pkl", "./pickles/DeepConfidence.pkl")
+    gruxcoord, gruycoord = util.drawROC("./pickles/labels.pkl", "./pickles/peakVal.pkl")
+    xcoord_deep, ycoord_deep = util.drawROC("./pickles/DeepDesiredLabel.pkl", "./pickles/DeepConfidence.pkl")
+    xcoord, ycoord = util.drawROC("./pickles/desiredLabel.pkl", "./pickles/confidence.pkl")
+    # plt.xlim((0,0.4))
+    # plt.ylim((0,0.2))
+    plt.text(0.5, 0.5, "W_max: "+str(Config.w_max))
+    plt.text(0.5, 0.7, "W_smooth: "+str(Config.w_smooth))
+    plt.xlabel("False positive rate")
+    plt.ylabel("False reject rate")
+    plt.title("Comparision of three models")
+    plt.scatter(gruxcoord, gruycoord, s=1, label="GRU_128")
+    plt.scatter(xcoord_deep, ycoord_deep, s=1, label="DNN_512_6")
+    plt.scatter(xcoord, ycoord, s=1, label="DNN_128_3")
+    plt.legend()
+    # plt.scatter(xcoord_deep, ycoord_deep, s=1)
+    plt.savefig(str(Config.w_smooth)+"_"+str(Config.w_max))
+    plt.show()
+
+    # from dataLoader import dataLoader
+    # dataloader = dataLoader()
+    # saver = tf.train.import_meta_graph("./models/GRU/model.ckpt.meta")
+    # with tf.Session() as sess:
+    #     saver.restore(sess,"./models/GRU/model.ckpt")
+    #     graph = tf.get_default_graph()
+    #     peakVal = []
+    #     labels = []
+    #     predNetwork = graph.get_collection("Pred_network")
+    #     output = predNetwork[0]
+    #     trainInput = graph.get_operation_by_name("Placeholder/batch_ph").outputs[0]
+    #     trainLabel = graph.get_operation_by_name("Placeholder/label_ph").outputs[0]
+    #     trainLength = graph.get_operation_by_name("Placeholder/length_ph").outputs[0]
+    #     while(1):
+    #         data,label,length,fnames = dataloader.getGRUTestNextBatch()
+    #         if(data.shape[0] == 0):
+    #             break
+    #         temp = sess.run(output,feed_dict={trainInput:data,trainLength:length})
+    #         for i, fname in enumerate(fnames):
+    #             dataloader.util.plotFileWave(fname, temp[:int(length[i]), i, :])
+
+
+

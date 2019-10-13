@@ -4,19 +4,19 @@ class Config:
     localHost = False
     modelName = "GRU" # "GRU" "DNN_6_512" "DNN_3_128"
     lossFunc = "seqLoss" # "Paper" "crossEntropy"
-    trainBatchSize = 16
-    testBatchSize = 16
+    trainBatchSize = 100
+    testBatchSize = 100
     leftFrames = 15
     shuffle = True
     rightFrames = 5
     learningRate = 0.001
-    decay_rate = 0.7
+    decay_rate = 0.9
     numEpochs = 40
-    w_smooth = 3
-    w_max = 10
+    w_smooth = 5
+    w_max = 70
     maximumFrameNumbers = 1300 # Max: 1259
 
-    useTensorBoard = True
+    useTensorBoard = False
     testMode = False
     if(localHost == True):
         positiveTestPath = "./data/Positive/test/"

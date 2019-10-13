@@ -56,10 +56,10 @@ if(Config.testMode == True):
     saver = tf.train.Saver()
     with tf.Session(config=config) as sess:
         saver.restore(sess, save_path="./models/GRU/model.ckpt")
-        for i in range(20):
-            data, labels, length = dataloader.getGRUTrainNextBatch()
-            repoLoss = sess.run([loss], feed_dict={batch_ph: data, label_ph: labels, length_ph: length})
-            print(repoLoss)
+        data, labels, length,fnames = dataloader.getGRUTestNextBatch()
+        temp = sess.run(output, feed_dict={batch_ph: data, length_ph: length})
+        for i, fname in enumerate(fnames):
+            dataloader.util.plotFileWave(fname, temp[:int(length[i]), i, :])
 else:
     print("Start Training Session...")
     with tf.Session(config=config) as sess:
@@ -73,14 +73,13 @@ else:
         sess.run(tf.global_variables_initializer())
         # Start training
         while(not Config.numEpochs == 0):
-            print(Config.numEpochs)
-            print("Start testing...")
-            data, label, length, fnames = dataloader.getGRUTestNextBatch()
-            if(data.shape[0] == 0):
-                data, label, length, fnames = dataloader.getGRUTestNextBatch()
-            temp = sess.run(output, feed_dict={batch_ph: data, length_ph: length})
-            for i, fname in enumerate(fnames):
-                dataloader.util.plotFileWave(fname, temp[:int(length[i]), i, :])
+            # print("Start testing...")
+            # data, label, length, fnames = dataloader.getGRUTestNextBatch()
+            # if(data.shape[0] == 0):
+            #     data, label, length, fnames = dataloader.getGRUTestNextBatch()
+            # temp = sess.run(output, feed_dict={batch_ph: data, length_ph: length})
+            # for i, fname in enumerate(fnames):
+            #     dataloader.util.plotFileWave(fname, temp[:int(length[i]), i, :])
             currentEpoch = Config.numEpochs
             print("Saving session!")
             model.save(sess)
@@ -90,8 +89,6 @@ else:
                     batchTrain,labelTrain = dataloader.getTrainNextBatch() # Get a batch of data
                 else:
                     data, labels, length = dataloader.getGRUTrainNextBatch()
-                if(data.shape[0] == 0):
-                    break
                 if(not currentEpoch == Config.numEpochs):
                     break
                 if(Config.modelName != "GRU"):
