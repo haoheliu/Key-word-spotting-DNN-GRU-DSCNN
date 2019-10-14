@@ -13,19 +13,19 @@ class dataLoader:
         self.util = Util()
         self.currentTestDataFile = 0
         self.currentTrainDataFile = 0
+        self.trainDataFiles = self.util.trainPositiveDataFiles + self.util.trainNegativeDataFiles
+        random.shuffle(self.trainDataFiles)
+        if(Config.visualizeTestData == True):
+            self.testDataFiles = ["positive_00001.fbank", "positive_00002.fbank", "positive_00003.fbank",
+                                  "positive_00004.fbank", "positive_00005.fbank", "positive_00006.fbank",
+                                  "positive_00009.fbank", "positive_00008.fbank", "positive_00007.fbank",
+                                  "negative_00001.fbank", "negative_00002.fbank", "negative_00003.fbank",
+                                  "negative_00004.fbank", "negative_00005.fbank", "negative_00006.fbank",
+                                  "negative_00009.fbank", "negative_00008.fbank", "negative_00007.fbank"
+                                  ]
+        else:
+            self.testDataFiles = self.util.testPositiveDataFiles +self.util.testNegativeDataFiles
 
-        self.trainDataFiles = self.util.trainPositiveDataFiles +self.util.trainNegativeDataFiles
-        self.testDataFiles = self.util.testPositiveDataFiles +self.util.testNegativeDataFiles
-        # self.testDataFiles = ["positive_00001.fbank", "positive_00002.fbank", "positive_00003.fbank",
-        #                       "positive_00004.fbank", "positive_00005.fbank", "positive_00006.fbank",
-        #                       "positive_00009.fbank", "positive_00008.fbank", "positive_00007.fbank",
-        #                       "negative_00001.fbank", "negative_00002.fbank", "negative_00003.fbank",
-        #                       "negative_00004.fbank", "negative_00005.fbank", "negative_00006.fbank",
-        #                       "negative_00009.fbank", "negative_00008.fbank", "negative_00007.fbank"
-        #                       ]
-        # self.testDataFiles = ["positive_00001.fbank",
-        #                       "negative_00001.fbank"
-        #                       ]
         self.maxTestCacheSize = Config.testBatchSize * Config.maximumFrameNumbers
         self.maxTrainCacheSize = Config.trainBatchSize * Config.maximumFrameNumbers
         self.trainData = {
@@ -41,8 +41,8 @@ class dataLoader:
     def getGRUTestNextBatch(self):
         # Reset
         self.testData = {
-            "data": np.zeros(shape=[Config.maximumFrameNumbers,Config.testBatchSize, (Config.leftFrames + Config.rightFrames + 1) * 40]),
-            "label": np.zeros(shape=[Config.maximumFrameNumbers,Config.testBatchSize]),
+            "data": np.zeros(shape=[Config.testBatchSize,Config.maximumFrameNumbers, (Config.leftFrames + Config.rightFrames + 1) * 40]),
+            "label": np.zeros(shape=[Config.testBatchSize,Config.maximumFrameNumbers]),
             "length":np.zeros(shape=[Config.testBatchSize]),
             "fnames":[]
         }
@@ -68,18 +68,21 @@ class dataLoader:
             self.currentTestDataFile += 1
             currentRow= 0
             for data, label in zip(result, label):
-                self.testData['data'][currentRow][i] = data
-                self.testData['label'][currentRow][i] = np.argmax(label)
+                self.testData['data'][i][currentRow] = data
+                self.testData['label'][i][currentRow] = np.argmax(label)
                 currentRow += 1
             self.testData['length'][i] = currentRow
+            # Use the maxlength within a batch to do padding
+        maxLength = np.max(self.testData["length"])
+        self.testData['data'], self.testData['label'] = self.testData['data'][:,:int(maxLength),:], self.testData['label'][:,:int(maxLength)]
         return self.testData['data'], self.testData['label'],self.testData['length'],self.testData["fnames"]
 
     # Get a batch of positive training example for gru
     def getGRUTrainNextBatch(self):
         # Reset
         self.trainData = {
-            "data": np.zeros(shape=[Config.maximumFrameNumbers,Config.trainBatchSize, (Config.leftFrames + Config.rightFrames + 1) * 40]),
-            "label": np.zeros(shape=[Config.maximumFrameNumbers,Config.trainBatchSize]),
+            "data": np.zeros(shape=[Config.trainBatchSize,Config.maximumFrameNumbers, (Config.leftFrames + Config.rightFrames + 1) * 40]),
+            "label": np.zeros(shape=[Config.trainBatchSize,Config.maximumFrameNumbers]),
             "length":np.zeros(shape=[Config.trainBatchSize])
         }
         counter = 0
@@ -105,10 +108,12 @@ class dataLoader:
             self.currentTrainDataFile += 1
             currentRow= 0
             for data, label in zip(result, label):
-                self.trainData['data'][currentRow][i] = data
-                self.trainData['label'][currentRow][i] = np.argmax(label)
+                self.trainData['data'][i][currentRow] = data
+                self.trainData['label'][i][currentRow] = np.argmax(label)
                 currentRow += 1
             self.trainData['length'][i] = currentRow
+        maxLength = np.max(self.trainData["length"])
+        self.trainData['data'], self.trainData['label'] = self.trainData['data'][ :,:int(maxLength), :], self.trainData['label'][:,:int(maxLength)]
         return self.trainData['data'], self.trainData['label'],self.trainData['length']
 
     # Get a batch of positive training example
@@ -245,8 +250,8 @@ if __name__ == "__main__":
 
     dataloader = dataLoader()
     # model = Model()
-    data,label,length,fnames = dataloader.getGRUTestNextBatch()
-    print(data.shape,label.shape,length,length[0],fnames)
+    data,label,length = dataloader.getGRUTrainNextBatch()
+    print(data.shape,label.shape,length,length[0])
     # saver = tf.train.Saver()
     # with tf.Session() as sess:
     #     # sess.run(tf.global_variables_initializer())

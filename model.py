@@ -38,6 +38,7 @@ class Model:
                       average_across_batch=True,
                       softmax_loss_function=None,
                       name=None):
+        tf.summary.scalar("Length_data", len(logits))
         with tf.name_scope(name, "sequence_loss", logits + targets + weights):
             cost = tf.reduce_sum(
                 self.sequence_loss_by_example(
@@ -134,7 +135,7 @@ class Model:
                 dtype=tf.float32,
                 sequence_length=length,
                 inputs=batch,
-                time_major= True)
+                time_major= False)
             outputs = tf.layers.dense(outputs, 3,name="dense_output")
         return outputs
 
@@ -180,7 +181,6 @@ class Model:
             self.saver.save(sess, "./models/GRU/model.ckpt")
 
 if __name__ == "__main__":
-
     from dataLoader import dataLoader
     dataloader = dataLoader()
     saver = tf.train.import_meta_graph("./models/GRU/model.ckpt.meta")
@@ -200,8 +200,9 @@ if __name__ == "__main__":
                 break
             temp = sess.run(output,feed_dict={trainInput:data,trainLength:length})
             for i in range(len(fnames)):
-                # dataloader.util.plotFileWave(fnames[i], temp[:int(length[i]), i, :])
-                peakVal.append(np.max(posteriorHandling(temp[:int(length[i]),i,:])))
+                a = int(length[i])
+                # dataloader.util.plotFileWave(fnames[i], temp[i,:int(length[i]), :])
+                peakVal.append(np.max(posteriorHandling(temp[i,:int(length[i]),:])))
                 if("positive" in fnames[i]):
                     labels.append(1)
                 else:
@@ -210,7 +211,6 @@ if __name__ == "__main__":
         dataloader.util.savePkl("./pickles/labels.pkl",labels)
 
     util = Util()
-    # xcoord_deep, ycoord_deep = util.drawROC("./pickles/DeepDesiredLabel.pkl", "./pickles/DeepConfidence.pkl")
     gruxcoord, gruycoord = util.drawROC("./pickles/labels.pkl", "./pickles/peakVal.pkl")
     xcoord_deep, ycoord_deep = util.drawROC("./pickles/DeepDesiredLabel.pkl", "./pickles/DeepConfidence.pkl")
     xcoord, ycoord = util.drawROC("./pickles/desiredLabel.pkl", "./pickles/confidence.pkl")
@@ -225,30 +225,7 @@ if __name__ == "__main__":
     plt.scatter(xcoord_deep, ycoord_deep, s=1, label="DNN_512_6")
     plt.scatter(xcoord, ycoord, s=1, label="DNN_128_3")
     plt.legend()
-    # plt.scatter(xcoord_deep, ycoord_deep, s=1)
     plt.savefig(str(Config.w_smooth)+"_"+str(Config.w_max))
     plt.show()
-
-    # from dataLoader import dataLoader
-    # dataloader = dataLoader()
-    # saver = tf.train.import_meta_graph("./models/GRU/model.ckpt.meta")
-    # with tf.Session() as sess:
-    #     saver.restore(sess,"./models/GRU/model.ckpt")
-    #     graph = tf.get_default_graph()
-    #     peakVal = []
-    #     labels = []
-    #     predNetwork = graph.get_collection("Pred_network")
-    #     output = predNetwork[0]
-    #     trainInput = graph.get_operation_by_name("Placeholder/batch_ph").outputs[0]
-    #     trainLabel = graph.get_operation_by_name("Placeholder/label_ph").outputs[0]
-    #     trainLength = graph.get_operation_by_name("Placeholder/length_ph").outputs[0]
-    #     while(1):
-    #         data,label,length,fnames = dataloader.getGRUTestNextBatch()
-    #         if(data.shape[0] == 0):
-    #             break
-    #         temp = sess.run(output,feed_dict={trainInput:data,trainLength:length})
-    #         for i, fname in enumerate(fnames):
-    #             dataloader.util.plotFileWave(fname, temp[:int(length[i]), i, :])
-
 
 
