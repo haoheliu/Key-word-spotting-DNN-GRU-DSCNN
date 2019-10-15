@@ -9,11 +9,12 @@ class Config:
     shuffle = True
     rightFrames = 5
     learningRate = 0.001
-    decay_rate = 0.85
-    numEpochs = 40
+    decay_rate = 0.895
+    numEpochs = 60
     w_smooth = 5
     w_max = 70
     maximumFrameNumbers = 1300 # Max: 1259
+    enableTest = True
     visualizeTestData = False
     useTensorBoard = True
     testMode = False

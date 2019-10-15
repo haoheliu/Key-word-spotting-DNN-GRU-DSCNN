@@ -2,12 +2,14 @@ import tensorflow as tf
 import os
 import numpy as np
 import pdb
+import matplotlib.pyplot as plt
 
 from sklearn.utils import shuffle
 from model import Model
 from dataLoader import dataLoader
 from config import Config
 from tensorflow.contrib.seq2seq import sequence_loss
+from PosteriorHandling import posteriorHandling
 
 os.environ["CUDA_DEVICE_ORDER"] = 'PCI_BUS_ID'
 os.environ["CUDA_VISIBLE_DEVICES"] = '1,0'
@@ -70,14 +72,40 @@ else:
         sess.run(tf.global_variables_initializer())
         # Start training
         while(not Config.numEpochs == 0):
-            if(Config.visualizeTestData == True):
+            if(Config.enableTest == True):
                 print("Start testing...")
-                data, label, length, fnames = dataloader.getGRUTestNextBatch()
-                if(data.shape[0] == 0):
+                peakVal = []
+                labels = []
+                while (1):
                     data, label, length, fnames = dataloader.getGRUTestNextBatch()
-                temp = sess.run(output, feed_dict={batch_ph: data, length_ph: length})
-                for i, fname in enumerate(fnames):
-                    dataloader.util.plotFileWave(fname, temp[i,:int(length[i]), :])
+                    if (data.shape[0] == 0):
+                        break
+                    temp = sess.run(output, feed_dict={batch_ph: data, length_ph: length})
+                    for i in range(len(fnames)):
+                        a = int(length[i])
+                        peakVal.append(np.max(posteriorHandling(temp[i, :int(length[i]), :])))
+                        if ("positive" in fnames[i]):
+                            labels.append(1)
+                        else:
+                            labels.append(0)
+                dataloader.util.savePkl("./pickles/peakVal.pkl", peakVal)
+                dataloader.util.savePkl("./pickles/labels.pkl", labels)
+                util = dataloader.util
+                gruxcoord, gruycoord = util.drawROC("./pickles/labels.pkl", "./pickles/peakVal.pkl")
+                xcoord_deep, ycoord_deep = util.drawROC("./pickles/DeepDesiredLabel.pkl", "./pickles/DeepConfidence.pkl")
+                xcoord, ycoord = util.drawROC("./pickles/desiredLabel.pkl", "./pickles/confidence.pkl")
+                plt.xlim((0, 0.4))
+                plt.ylim((0, 0.2))
+                plt.text(0.5, 0.5, "W_max: " + str(Config.w_max))
+                plt.text(0.5, 0.7, "W_smooth: " + str(Config.w_smooth))
+                plt.xlabel("False positive rate")
+                plt.ylabel("False reject rate")
+                plt.title("Comparision of three models")
+                plt.scatter(gruxcoord, gruycoord, s=1, label="GRU_128")
+                plt.scatter(xcoord_deep, ycoord_deep, s=1, label="DNN_512_6")
+                plt.scatter(xcoord, ycoord, s=1, label="DNN_128_3")
+                plt.legend()
+                plt.savefig("./images/ROC/"+str(Config.numEpochs)+"_"+str(Config.w_smooth)+"_"+str(Config.w_max))
             currentEpoch = Config.numEpochs
             print("Saving session!")
             print("[EPOCH " + str(totalEpoches - Config.numEpochs + 1), "]", "lr: ", sess.run(learning_rate))

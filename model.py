@@ -198,7 +198,7 @@ if __name__ == "__main__":
             data,label,length,fnames = dataloader.getGRUTestNextBatch()
             if(data.shape[0] == 0):
                 break
-            temp = sess.run(output,feed_dict={trainInput:data,trainLength:length})
+            temp = sess.run(output,feed_dict={trainInput:data,trainLabel:label,trainLength:length})
             for i in range(len(fnames)):
                 a = int(length[i])
                 # dataloader.util.plotFileWave(fnames[i], temp[i,:int(length[i]), :])
@@ -214,8 +214,8 @@ if __name__ == "__main__":
     gruxcoord, gruycoord = util.drawROC("./pickles/labels.pkl", "./pickles/peakVal.pkl")
     xcoord_deep, ycoord_deep = util.drawROC("./pickles/DeepDesiredLabel.pkl", "./pickles/DeepConfidence.pkl")
     xcoord, ycoord = util.drawROC("./pickles/desiredLabel.pkl", "./pickles/confidence.pkl")
-    # plt.xlim((0,0.4))
-    # plt.ylim((0,0.2))
+    plt.xlim((0,0.1))
+    plt.ylim((0,0.1))
     plt.text(0.5, 0.5, "W_max: "+str(Config.w_max))
     plt.text(0.5, 0.7, "W_smooth: "+str(Config.w_smooth))
     plt.xlabel("False positive rate")
@@ -226,6 +226,6 @@ if __name__ == "__main__":
     plt.scatter(xcoord, ycoord, s=1, label="DNN_128_3")
     plt.legend()
     plt.savefig(str(Config.w_smooth)+"_"+str(Config.w_max))
-    plt.show()
+   #  plt.show()
 
 
