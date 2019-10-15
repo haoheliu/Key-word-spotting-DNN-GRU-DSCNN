@@ -1,20 +1,229 @@
 # Key-word-spotting-DNN
-
+Tensorflow实现的DNN-KWS以及GRU-KWS系统
+- ./models存储了训练好的效果最好的模型
+- ./pickles储存了绘制ROC曲线的原始数据
+- config.py 用来配置模型以及调试参数（全局）
+- dataLoader.py 用来加载test和trian数据
+- util.py 包含各种工具函数，包括特征格式转换，绘制曲线，可视化，数据统计等
+- train.py 包含建图和训练的过程
+- model.py 构建了DNN,GRU模型
+- PosteriorHandling.py 实现了模型输出的后处理
+- fbankreader3.py 用来读取fbank文件
+- makeGif.py 用于将一个目录下的所有png图片合成为gif
+- countParamNumber.py 用于数目前的模型有多少参数
+ 
 # 一. 链接
- - [Github - Ranchofromxgd/Key-word-spotting-DNN](https://github.com/Ranchofromxgd/Key-word-spotting-DNN)
+ - [Github - Ranchofromxgd/Key-word-spotting-DNN-GRU](https://github.com/Ranchofromxgd/Key-word-spotting-DNN)
+ - [GRU语音识别实现过程](http://haoheliu.com/2019/10/10/Use-GRU-for-Key-word-spotting/)
+ - [DNN语音识别实现过程](http://haoheliu.com/2019/09/29/Procedure-and-Problems-I-have-during-the-build-of-DNN-key-word-spotting-system/)
  - [Paper - SMALL-FOOTPRINT KEYWORD SPOTTING USING DEEP NEURAL NETWORK](https://research.google.com/pubs/archive/42537.pdf)
  - [友情链接 - 好河流](haoheliu.com)
 
-# 二. 实现过程
+# 二.GRU语音识别实现过程
+# 1. 概述
+- 这个实验是基于上一个[DNN-KWS](http://haoheliu.com/2019/09/29/Procedure-and-Problems-I-have-during-the-build-of-DNN-key-word-spotting-system/)来做的，只不过换用了GRU模型，需要改变数据输入格式和损失函数等
+
+- 实现使用的是tensorflow，在过程中遇到的问题记录在了这篇blog中：[Tensorflow 战术总结1](http://haoheliu.com/2019/10/12/Tensorflow-Learning/)
+
+## 1.1. 链接
+- [Github:  Key-word-spotting-DNN-GRU](https://github.com/Ranchofromxgd/Key-word-spotting-DNN-GRU)
+
+
+# 2. 运行结果
+## 2.1. ROC曲线
+GRU和之前用DNN两个模型的对比
+
+![Compare](https://ranchofromxgd.github.io/assets/2019-10-15-14-13-14.png)
+
+## 2.2. 模型输出可视化
+一个Gif图（需要等着加载一会）
+- 从上到下依次是声音波形、期望的输出标签、模型输出的filler的置信度、模型输出的两个唤醒词的置信度，整体Confidence
+- 可以看到在positive样例（标题中显示是P还是N）期望输出标签的位置，模型对两个唤醒词的置信度也相继会上升，对应的confidence也比较高。Negative样例则输出值都比较低。
+
+![Compare_gif](https://ranchofromxgd.github.io/assets/compare.gif)
+
+## 2.3. 最优参数
+最终使用的最优参数为：
+```python
+    modelName = "GRU" # "GRU" "DNN_6_512" "DNN_3_128"
+    lossFunc = "seqLoss" # "Paper" "crossEntropy"
+    trainBatchSize = 16
+    testBatchSize = 16
+    leftFrames = 15
+    shuffle = True
+    rightFrames = 5
+    learningRate = 0.001
+    decay_rate = 0.895
+    numEpochs = 60
+    w_smooth = 5
+    w_max = 70
+```
+- Loss & learningRate 曲线
+
+![loss_lr](https://ranchofromxgd.github.io/assets/2019-10-15-14-19-58.png)
+
+
+# 3. 模型结构
+- 模型的整体结构如下  
+
+![Overall](https://ranchofromxgd.github.io/assets/2019-10-15-14-12-24.png)
+
+- 其中GRU模型如下：
+
+$$
+c^{<t>}_0 = tanh(W_c[c^{<t-1>},x^{t}]+b_c)
+$$
+
+$$
+c^{<t>} = \Gamma_u*c^{<t>}_0 + (1-\Gamma_u)*c^{<t-1>}
+$$
+
+Update gate:
+
+$$
+\Gamma_u = \sigma(W_u[c^{<t-1>},x^{t}]+b_u)
+$$
+
+## 3.1. 参数个数
+- 根据上述公式，GRU的trainable parameter有$W_c,W_u,b_c,b_u$, 形状分别为(968, 256)，256，(968, 128)，128，再加上一层DNN(128,3)，最终参数个数为372483
+ 
+- 下边对主要的三个板块进行展开：
+## 3.2. Placeholders
+
+![Placeholder](https://ranchofromxgd.github.io/assets/2019-10-13-13-55-40.png)
+
+## 3.3. GRU-DenseLayer
+
+![model](https://ranchofromxgd.github.io/assets/2019-10-13-13-58-46.png)
+
+## 3.4. Loss function and optimizer
+
+![loss_function_and_optimizer](https://ranchofromxgd.github.io/assets/2019-10-13-14-05-03.png)
+
+
+# 4. 实现细节
+## 4.1. GRU模型定义
+```python
+def GRU(self,batch,length):
+    with tf.variable_scope("GRU"):
+        # 先定义一个cell，输出为128维
+        cell = tf.contrib.rnn.GRUCell(num_units=128,name = "gru_cell")
+        outputs, _ = tf.nn.dynamic_rnn(
+            cell=cell, 
+            dtype=tf.float32,
+            sequence_length=length,
+            inputs=batch, 
+            time_major= False) # 如果是True的话输入的第一维是timestep，否则第一维是batchsize
+        outputs = tf.layers.dense(outputs, 3,name="dense_output")
+    return outputs
+```
+注意这里对输入数据的维度要求
+- **time_major:**
+如果time_major=True的话，输入的input形状应该是[Time_Step,batch_size,feature_size]  
+如果time_major=False的话，输入的input形状应该是[batch_size,Time_Step,feature_size]
+- **sequence_length:**  
+对应的是batch中每一个数据的有效长度
+
+## 4.2. GRU输入数据
+经过统计，输入数据中最多为1249帧，在构造数据的时候就按照1300帧来对所有帧进行padding，在计算loss的时候，根据各个数据的实际帧长度生成一个mask，与loss点积后获得实际的的loss
+<hr>
+**10.14 UPDATE** 
+
+发现全局padding效率比较低，后边就按照每个batch最长的序列来padding
+
+## 4.3. 损失函数Sequence loss
+- 输入一个tensor的列表，对每条数据的每一个时间片都计算一个交叉熵损失，一条数据中各个时间片的损失加起来取平均，各个数据之间也取平均  
+- 最初使用sequence_loss的时候直接调的包，结果一直提示tensor不能迭代，查看源码以后才发现输入竟然要求是列表，因为用到了zip操作，我也只得将tensor进行分片然后放入list
+```python
+    def sequence_loss(self,
+                      logits,
+                      targets,
+                      weights,
+                      average_across_timesteps=True,
+                      average_across_batch=True,
+                      softmax_loss_function=None,
+                      name=None):
+        with tf.name_scope(name, "sequence_loss", logits + targets + weights):
+            cost = tf.reduce_sum(
+                self.sequence_loss_by_example(
+                    logits,
+                    targets,
+                    weights,
+                    average_across_timesteps=average_across_timesteps,
+                    softmax_loss_function=softmax_loss_function))
+            if average_across_batch:
+                batch_size = tf.shape(targets[0])[0]
+                return cost / tf.cast(batch_size, cost.dtype)
+            else:
+                return cost
+
+    def sequence_loss_by_example(self,
+                                 logits,
+                                 targets,
+                                 weights,
+                                 average_across_timesteps=True,
+                                 softmax_loss_function=None,
+                                 name=None):
+        # 此三者都是列表，长度都应该相同
+        if len(targets) != len(logits) or len(weights) != len(logits):
+            raise ValueError("Lengths of logits, weights, and targets must be the same "
+                             "%d, %d, %d." % (len(logits), len(weights), len(targets)))
+        with tf.name_scope(name, "sequence_loss_by_example",
+                           logits + targets + weights):
+            log_perp_list = []
+            # 计算每个时间片的损失
+            for logit, target, weight in zip(logits, targets, weights):
+                if softmax_loss_function is None:
+                    # 默认使用sparse
+                    target = tf.reshape(target, [-1])
+                    crossent = tf.nn.sparse_softmax_cross_entropy_with_logits(
+                        labels=target, logits=logit)
+                else:
+                    crossent = softmax_loss_function(labels=target, logits=logit)
+                log_perp_list.append(crossent * weight)
+            # 把各个时间片的损失加起来
+            log_perps = tf.add_n(log_perp_list)
+            # 对各个时间片的损失求平均数
+            if average_across_timesteps:
+                total_size = tf.add_n(weights)
+                total_size += 1e-12  # Just to avoid division by 0 for all-0 weights.
+                log_perps /= total_size
+        return log_perps
+```
+<hr>
+**10.15 UPDATE**  
+
+上边的源码是老旧的，可以直接使用tensorflow.contrib.seq2seq.sequence_loss来计算，不需要转化为list
+
+# 5. 遇到的部分问题记录
+## 5.1. 到第二个epoch以后loss激增
+如图：
+
+![loss_problem](https://ranchofromxgd.github.io/assets/2019-10-14-18-00-13.png)
+
+是因为训练数据在第一个epoch忘了shuffle了，导致刚开始用来训练的全是正样本，完了才是负样本，到第二个epoch shuffle之后训练集的分布就s会就会变动比较大，影响准确度
+
+<hr>
+后记：这次实现的比较慢，前后花了快四天的时间，其中两天在调模型。经过这次调试，我懂得了shuffle以及各种trick的重要性。以后记住了在实现模型的时候能调API的就尽量不要自己尝试实现，总不如API来得效果好。今后调试也要更多的使用tensorboard，真是调试利器。PDB也要开始学着使用了。
+
+
+# 三. DNN实现过程
 ## 1. Overall framework
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/2019092921052557.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM2MzIzNTU5,size_16,color_FFFFFF,t_70)
 ## 2. Time line
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20190929212513365.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM2MzIzNTU5,size_16,color_FFFFFF,t_70)
 ## 3. Experiment result
- Model capacity: 3*128 DNN with Relu activation
+
+ Model capacity: 
+ 1. 3*128 DNN with Relu activation
+ 2. 6*512 DNN with Relu activation
+
 ### 3.1 ROC curve
-Evaluated on 100 positive test data and 100 negative test data:
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20190929214243308.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM2MzIzNTU5,size_16,color_FFFFFF,t_70)
+
+Evaluated on 559 positive test data and 3453 negative test data:
+
+![Roc](http://haoheliu.com/assets/2019-10-07-00-28-30.png)
+
 ### 3.2 Model output v.s Raw *.WAV* data (List only a few)
 #### 3.2.1 Positive test data
 ##### (1) positive_00001
@@ -84,8 +293,12 @@ $$S_i = \frac{e^i}{\sum_je^j}$$
   ![在这里插入图片描述](https://img-blog.csdnimg.cn/20190929224639763.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM2MzIzNTU5,size_16,color_FFFFFF,t_70)
 $Confidence$理应是呈上升趋势，而这里却变为下降，由于后处理设计的漏洞
 
+    为了克服符号造成的影响，在这里 $Confidence$ 的计算按下边的公式来:
+
+  $$confidence = \sum^{n-1}_{i=1}max_{h_{max<=k<=j}}p_{ik}^{'}$$
+
 - 平滑范围不太合适
-1. 最初平滑值$w_{smooth}$和$w_{max}$我分别取的是30和100，得到类似于下方的结果：
+1. 最初平滑值$w_{smooth}$和$w_{max}$我分别取的是30和100(论文里边的取值)，得到类似于下方的结果：
 *正样本：*
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20190929225323654.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzM2MzIzNTU5,size_16,color_FFFFFF,t_70)
 *负样本*：
@@ -192,6 +405,7 @@ class dataLoader:
             raise ValueError("File should either be positive or negative")
         return testData['data'],testData['label']
 ```
+
 - 特征拼接的实现：
 ```python
     # Combine each frame's feature with left and right frames'
@@ -219,7 +433,9 @@ class dataLoader:
                 np.save(Config.offlineDataPath + fname + "_label.npy", label)
         return result,label
 ```
-- 训练过程
+
+- 训练过程: 
+
 ```python
 print("Construct model...")
 dnnModel = Model()
@@ -259,5 +475,4 @@ with tf.Session(config=config) as sess:
                 break
             sess.run(trainStep,feed_dict={batch:batchTrain,label:labelTrain})
         print("[EPOCH " + str(totalEpoches - Config.numEpochs+1), "]", "lr: ", sess.run(learning_rate))
-
 ```
