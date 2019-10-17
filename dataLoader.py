@@ -156,7 +156,7 @@ class dataLoader:
         if(self.currentTestDataFile >= len(self.testDataFiles)-0):
             self.currentTestDataFile = 0
             random.shuffle(self.testDataFiles)
-            return [],[]
+            return np.array([]),np.array([])
         if(not fPath == None):
             fname = self.util.splitFileName(fPath)
         else:
@@ -166,7 +166,7 @@ class dataLoader:
             label = np.load(Config.offlineDataPath + fname + "_label.npy")
         except:
             print("Error while reading file: " + fname)
-            return [],[]
+            return np.array([0]),np.array([0])
         testData = {
             "data": np.zeros(shape=[result.shape[0], (Config.leftFrames + Config.rightFrames + 1) * 40]),
             "label": None
@@ -250,8 +250,8 @@ if __name__ == "__main__":
 
     dataloader = dataLoader()
     # model = Model()
-    data,label,length = dataloader.getGRUTrainNextBatch()
-    print(data.shape,label.shape,length,length[0])
+    result = dataloader.getSingleTestData()
+    print(result[0].shape)
     # saver = tf.train.Saver()
     # with tf.Session() as sess:
     #     # sess.run(tf.global_variables_initializer())
