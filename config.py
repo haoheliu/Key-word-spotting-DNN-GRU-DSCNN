@@ -3,8 +3,8 @@ import tensorflow as tf
 class Config:
     modelName = "DSCNN" # "GRU" "DNN_6_512" "DNN_3_128" "DSCNN"
     lossFunc = "seqLoss" # "Paper" "crossEntropy"
-    trainBatchSize = 10
-    testBatchSize = 10
+    trainBatchSize = 8 
+    testBatchSize = 8 
     leftFrames = 15
     shuffle = True
     rightFrames = 5
@@ -18,7 +18,7 @@ class Config:
     useTensorBoard = True
     testMode = False
     saveModel = True
-    drowROC = True
+    drowROC = False 
     enableVisualize = visualizeTestData or drowROC
     positiveTestPath = "/home/disk2/internship_anytime/aslp_hotword_data/aslp_wake_up_word_data/data/positive/test/"
     positiveTrainPath = "/home/disk2/internship_anytime/aslp_hotword_data/aslp_wake_up_word_data/data/positive/train/"

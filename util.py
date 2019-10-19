@@ -121,13 +121,9 @@ class Util:
             pl.plot(posteriorHandling(modelOutput))
             plt.xlabel("Frames")
             plt.ylabel("Confidence")
-            if(Config.visualizeTestData == True):
-                if(not os.path.exists("./images/compare/"+str(Config.numEpochs))):
-                    os.mkdir("./images/compare/"+str(Config.numEpochs))
-                pl.savefig("./images/compare/"+str(Config.numEpochs)+"/"+fname+".png")
-                pl.show()
-            else:
-                pl.show()
+            if(not os.path.exists("./images/compare/"+str(Config.numEpochs))):
+                os.mkdir("./images/compare/"+str(Config.numEpochs))
+            pl.savefig("./images/compare/"+str(Config.numEpochs)+"/"+fname+".png")
             return confidence
 
     def plotRoc(self,labels, predict_prob,show = True):

@@ -15,16 +15,7 @@ class dataLoader:
         self.currentTrainDataFile = 0
         self.trainDataFiles = self.util.trainPositiveDataFiles + self.util.trainNegativeDataFiles
         random.shuffle(self.trainDataFiles)
-        if(Config.visualizeTestData == True):
-            self.testDataFiles = ["positive_00001.fbank", "positive_00002.fbank", "positive_00003.fbank",
-                                  "positive_00004.fbank", "positive_00005.fbank", "positive_00006.fbank",
-                                  "positive_00009.fbank", "positive_00008.fbank", "positive_00007.fbank",
-                                  "negative_00001.fbank", "negative_00002.fbank", "negative_00003.fbank",
-                                  "negative_00004.fbank", "negative_00005.fbank", "negative_00006.fbank",
-                                  "negative_00009.fbank", "negative_00008.fbank", "negative_00007.fbank"
-                                  ]
-        else:
-            self.testDataFiles = self.util.testPositiveDataFiles +self.util.testNegativeDataFiles
+        self.testDataFiles = self.util.testPositiveDataFiles +self.util.testNegativeDataFiles
 
         self.maxTestCacheSize = Config.testBatchSize * Config.maximumFrameNumbers
         self.maxTrainCacheSize = Config.trainBatchSize * Config.maximumFrameNumbers

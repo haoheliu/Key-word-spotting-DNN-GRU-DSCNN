@@ -26,13 +26,6 @@ class Model:
         else:
             self.TestInput = tf.placeholder(tf.float32, shape=(None, 40 * (Config.leftFrames + Config.rightFrames + 1)), name='batch_input')
 
-        if(Config.lossFunc == "seqLoss"):
-            self.lossFunc = self.lossFunc_SequenceLoss
-        elif(Config.lossFunc == "crossEntropy"):
-            self.lossFunc = self.lossFunc_CrossEntropy
-        elif(Config.lossFunc == "Paper"):
-            self.lossFunc = self.lossFunc_Paper
-
     def createModel_3_128(self):
         with tf.name_scope("DNNModel_3_128"):
             self.model = tf.keras.Sequential()
@@ -98,14 +91,6 @@ class Model:
         t_dim = input_time_size
         f_dim = input_frequency_size
 
-        '''
-        model_size_info[0]: num_layers
-        Loop:
-          model_size_info[i]:Conv filter height
-          model_size_info[i+1]:Conv filter width
-          model_size_info[i+2]:stride in y dir
-          model_size_info[i+3]:stride in x dir
-        '''
         # Extract model dimensions from model_size_info
         num_layers = model_size_info[0]
         conv_feat = [None] * num_layers
@@ -193,15 +178,6 @@ class Model:
         output = tf.nn.softmax_cross_entropy_with_logits(logits=inputs, labels=targets)
         output = tf.reduce_sum(output)
         return output
-
-    #  (1300, 8, 840) (1300, 8) (8,)
-    def lossFunc_SequenceLoss(self,inputs,targets,length):
-        weight = tf.sequence_mask(length, Config.maximumFrameNumbers)
-        output = self.model(inputs = tf.convert_to_tensor(inputs, dtype=tf.float32))
-        weight = tf.cast(tf.transpose(weight),dtype = tf.float32)
-        targets = tf.cast(targets,dtype=tf.int32)
-        # return self.sequence_loss(logits = [inputs], targets = [targets],weights = [weight]),None
-        return [output],[targets],[weight]
 
     def save(self,sess):
         self.saver = tf.train.Saver()
